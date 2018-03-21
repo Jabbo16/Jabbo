@@ -17,6 +17,7 @@ namespace Jabbo {
 		map < Unit, pair<UnitType, TilePosition >> workerBuild_;
 		map <Unit, Unit> workerTask_;
 		static bool iHaveMoney(const UnitType& unit);
+		static TilePosition chooseGeyser();
 		static void onFrame();
 		static BuildingManager & instance();
 		static void onUnitCreate(Unit);

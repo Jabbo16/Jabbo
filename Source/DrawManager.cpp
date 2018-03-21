@@ -15,7 +15,7 @@ namespace Jabbo {
 
 	void DrawManager::onFrame()
 	{
-		for (const auto m : ResourceManager::Instance().minerals_)
+		for (const auto m : ResourceManager::instance().minerals_)
 		{
 			string text = to_string(m.second);
 			drawTextUnit(m.first->getPosition(), text);

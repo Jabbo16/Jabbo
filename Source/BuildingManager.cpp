@@ -24,6 +24,11 @@ namespace Jabbo
 		return myMinerals >= unit.mineralPrice() && myGas >= unit.gasPrice();
 	}
 
+	TilePosition BuildingManager::chooseGeyser()
+	{
+		return TilePositions::Invalid;
+	}
+
 	BuildingManager& BuildingManager::instance()
 	{
 		static BuildingManager instance;
@@ -145,15 +150,22 @@ namespace Jabbo
 		}
 
 		auto chosenPosition = TilePositions::Unknown;
-		if (chosenType.requiresPsi())
+		if (!chosenType.isRefinery())
 		{
-			chosenPosition = mapBweb.getBuildPosition(chosenType, instance().reserved_, Broodwar->self()->getStartLocation(),
-				true);
+			if (chosenType.requiresPsi())
+			{
+				chosenPosition = mapBweb.getBuildPosition(chosenType, instance().reserved_, Broodwar->self()->getStartLocation(),
+					true);
+			}
+			else
+			{
+				chosenPosition = mapBweb.getBuildPosition(chosenType, instance().reserved_, Broodwar->self()->getStartLocation(),
+					false);
+			}
 		}
 		else
 		{
-			chosenPosition = mapBweb.getBuildPosition(chosenType, instance().reserved_, Broodwar->self()->getStartLocation(),
-				false);
+			chosenPosition = instance().chooseGeyser();
 		}
 		Unit chosenWorker = nullptr;
 		for (auto unit : RecollectManager::Instance().workerIdle_)

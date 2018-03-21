@@ -9,7 +9,6 @@ using namespace BWEM;
 using namespace BWEM::BWAPI_ext;
 using namespace BWEM::utils;
 
-namespace { auto & bwem = BWEM::Map::Instance(); }
 namespace { auto & mapBweb = BWEB::Map::Instance(); }
 using namespace Jabbo;
 
@@ -28,14 +27,8 @@ void JabboModule::onStart()
 	UnitInfoManager::getInstance().onStart();
 	Unit firstCC = nullptr;
 	Broodwar->enableFlag(Flag::UserInput);
-	for (auto u : Broodwar->self()->getUnits())
-	{
-		if (u->getType().isResourceDepot())
-		{
-			firstCC = u;
-		}
-	}
-	ResourceManager::initBaseResources(firstCC);
+	BaseManager::initBaseManager();
+	ResourceManager::initBaseResources();
 	RecollectManager::init();
 	// Set the command optimization level so that common commands can be grouped
 	// and reduce the bot's APM (Actions Per Minute).

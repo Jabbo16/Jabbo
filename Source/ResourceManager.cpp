@@ -1,12 +1,11 @@
 #include "ResourceManager.hpp"
-namespace { auto & bwem = BWEM::Map::Instance(); }
-using namespace BWEM;
+
 using namespace BWAPI;
 namespace Jabbo {
 	ResourceManager::ResourceManager()
 		= default;
 
-	ResourceManager & ResourceManager::Instance()
+	ResourceManager & ResourceManager::instance()
 	{
 		static ResourceManager instance;
 		return instance;
@@ -15,23 +14,21 @@ namespace Jabbo {
 	{
 	}
 
-	void ResourceManager::initBaseResources(const Unit &firstDepot)
+	void ResourceManager::initBaseResources()
 	{
-		const auto tStart = Broodwar->self()->getStartLocation();
-		auto pStart = Position(tStart) + Position(64, 48);
-		const auto mainArea = Map::Instance().GetArea(tStart);
-		for (auto &base : mainArea->Bases())
+		for (auto &base : BaseManager::instance().bases)
 		{
-			if (base.Location() == firstDepot->getTilePosition())
+			if (base.owner == Ally)
 			{
-				for (auto &m : base.Minerals())
+				for (auto &m : base.minerals)
 				{
-					Instance().minerals_.insert(std::pair<Unit, int>(m->Unit(), 0));
+					instance().minerals_.insert(std::pair<Unit, int>(m, 0));
 				}
-				for (auto &g : base.Geysers())
+				for (auto &g : base.geysers)
 				{
-					Instance().gas_.insert(std::pair<Unit, int>(g->Unit(), 0));
+					instance().gas_.insert(std::pair<Unit, int>(g, 0));
 				}
+				break;
 			}
 		}
 	}

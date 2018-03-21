@@ -49,12 +49,12 @@ namespace Jabbo {
 					{
 						if (Instance().chosenWorker->exists())
 						{
-							if (ResourceManager::Instance().minerals_.empty())
+							if (ResourceManager::instance().minerals_.empty())
 							{
 								return Status::Failure;
 							}
 							Unit closestMineral = nullptr;
-							for (const auto mineral : ResourceManager::Instance().minerals_)
+							for (const auto mineral : ResourceManager::instance().minerals_)
 							{
 								if (mineral.second >= 2)
 								{
@@ -67,7 +67,7 @@ namespace Jabbo {
 							}
 							if (closestMineral)
 							{
-								ResourceManager::Instance().minerals_[closestMineral]++;
+								ResourceManager::instance().minerals_[closestMineral]++;
 								Instance().workerMineral_.insert(pair<Unit, Unit>{Instance().chosenWorker, closestMineral});
 								Instance().workerIdle_.erase(Instance().chosenWorker);
 								Instance().chosenWorker->gather(closestMineral);

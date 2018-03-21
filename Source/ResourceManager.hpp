@@ -3,6 +3,7 @@
 #include <BWAPI.h>
 #include"BWEM 1.4.1/src/bwem.h"
 #include <set>
+#include "BaseManager.hpp"
 namespace Jabbo {
 	using namespace BWAPI;
 	using namespace std;
@@ -13,7 +14,7 @@ namespace Jabbo {
 		map<Unit, int> gas_;
 		ResourceManager();
 		static void onUnitDestroy(BWAPI::Unit unit);
-		static void initBaseResources(const Unit& firstDepot);
-		static ResourceManager & Instance();
+		static void initBaseResources();
+		static ResourceManager & instance();
 	};
 }

@@ -100,6 +100,7 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Source\BaseManager.cpp" />
     <ClCompile Include="Source\BuildingManager.cpp" />
     <ClCompile Include="Source\BuildOrderManager.cpp" />
     <ClCompile Include="Source\BWEB\AStar.cpp" />
@@ -133,6 +134,7 @@
     <ClCompile Include="Source\TrainingManager.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Source\BaseManager.hpp" />
     <ClInclude Include="Source\BrainTree.h" />
     <ClInclude Include="Source\BuildingManager.hpp" />
     <ClInclude Include="Source\BuildOrderManager.hpp" />
