@@ -18,7 +18,7 @@ namespace Jabbo
 				}
 				for (auto& g : base.Geysers())
 				{
-					newBase.minerals.insert(g->Unit());
+					newBase.geysers.insert(g->Unit());
 				}
 				newBase.area = base.GetArea();
 				newBase.base = &base;

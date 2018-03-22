@@ -29,7 +29,8 @@ void JabboModule::onStart()
 	Broodwar->enableFlag(Flag::UserInput);
 	BaseManager::initBaseManager();
 	ResourceManager::initBaseResources();
-	RecollectManager::init();
+	RecollectManager::initTree();
+	BuildingManager::initTree();
 	// Set the command optimization level so that common commands can be grouped
 	// and reduce the bot's APM (Actions Per Minute).
 	Broodwar->setCommandOptimizationLevel(2);

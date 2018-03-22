@@ -21,23 +21,24 @@ namespace Jabbo {
 			drawTextUnit(m.first->getPosition(), text);
 		}
 
-		for (const auto m : RecollectManager::Instance().workerMineral_)
+		for (const auto m : RecollectManager::instance().workerMineral_)
 		{
 			string text = "Miner";
 			drawTextUnit(m.first->getPosition(), text);
+			Broodwar->drawLineMap(m.first->getPosition(), m.second->getPosition(), Colors::Red);
 		}
-		for (const auto m : RecollectManager::Instance().workerIdle_)
+		for (const auto m : RecollectManager::instance().workerIdle_)
 		{
 			string text = "Idle";
 			drawTextUnit(m->getPosition(), text);
 		}
-		for (const auto m : BuildingManager::instance().workerBuild_)
+		for (const auto m : BuildingManager::instance().workerBuild)
 		{
 			string text = "Builder";
 			drawTextUnit(m.first->getPosition(), text);
 			drawBoxUnit(m.second.second, m.second.first, Colors::Yellow);
 		}
-		for (const auto m : BuildingManager::instance().workerTask_)
+		for (const auto m : BuildingManager::instance().workerTask)
 		{
 			string text = "Tasked";
 			drawTextUnit(m.second->getPosition(), text);

@@ -1,6 +1,8 @@
 #include "BuildingManager.hpp"
 #include "RecollectManager.hpp"
 #include "BuildOrderManager.hpp"
+#include "BaseManager.hpp"
+#include "ResourceManager.hpp"
 
 namespace
 {
@@ -9,14 +11,13 @@ namespace
 
 namespace Jabbo
 {
-	BuildingManager::BuildingManager()
-		= default;
+	BuildingManager::BuildingManager() = default;
 
 	bool BuildingManager::iHaveMoney(const UnitType& unit)
 	{
 		int myMinerals = Broodwar->self()->minerals();
 		int myGas = Broodwar->self()->gas();
-		for (auto queue : instance().buildingsResourcesQueue_)
+		for (auto queue : instance().buildingsResourcesQueue)
 		{
 			myMinerals -= queue.mineralPrice();
 			myGas -= queue.gasPrice();
@@ -37,28 +38,28 @@ namespace Jabbo
 
 	void BuildingManager::onUnitCreate(const Unit unit)
 	{
-		for (auto& builder : instance().workerBuild_)
+		for (auto& builder : instance().workerBuild)
 		{
 			if (builder.second.first == unit->getType() && builder.second.second == unit->getTilePosition())
 			{
 				if (Broodwar->self()->getRace() == Races::Terran)
 				{
-					instance().workerTask_.insert(pair<Unit, Unit>{unit, builder.first});
+					instance().workerTask.insert(pair<Unit, Unit>{unit, builder.first});
 				}
 				else
 				{
 					instance().unitTransforming_.insert(unit);
-					RecollectManager::Instance().workerIdle_.insert(builder.first);
+					RecollectManager::instance().workerIdle_.insert(builder.first);
 				}
-				for (const auto type : instance().buildingsResourcesQueue_)
+				for (const auto type : instance().buildingsResourcesQueue)
 				{
 					if (unit->getType() == type)
 					{
-						instance().buildingsResourcesQueue_.remove(type);
+						instance().buildingsResourcesQueue.remove(type);
 						break;
 					}
 				}
-				instance().workerBuild_.erase(builder.first);
+				instance().workerBuild.erase(builder.first);
 				break;
 			}
 		}
@@ -68,11 +69,11 @@ namespace Jabbo
 	{
 		if (Broodwar->self()->getRace() == Races::Terran)
 		{
-			if (instance().workerTask_.find(unit) != instance().workerTask_.end())
+			if (instance().workerTask.find(unit) != instance().workerTask.end())
 			{
-				RecollectManager::Instance().workerIdle_.insert(instance().workerTask_[unit]);
+				RecollectManager::instance().workerIdle_.insert(instance().workerTask[unit]);
 				// TODO insertar en lista de edificios
-				instance().workerTask_.erase(unit);
+				instance().workerTask.erase(unit);
 			}
 		}
 		else
@@ -85,9 +86,218 @@ namespace Jabbo
 		}
 	}
 
+	void BuildingManager::initTree()
+	{
+		class ChooseType : public bt::Leaf
+		{
+		public:
+			Status update() override
+			{
+				try
+				{
+					instance().chosenType_ = UnitTypes::Unknown;
+					instance().isFromBO_ = false;
+					if (!BuildOrderManager::instance().myBo.itemsBO.empty())
+					{
+						BOItem next = BuildOrderManager::instance().myBo.itemsBO[0];
+
+						if (!next.unit.isBuilding())
+						{
+							return Status::Failure;
+						}
+						if (instance().iHaveMoney(next.unit) && Broodwar->self()->supplyUsed() / 2 >= next.supply)
+						{
+							instance().chosenType_ = next.unit;
+							instance().isFromBO_ = true;
+						}
+					}
+					else
+					{
+						if (Broodwar->self()->supplyTotal() / 2 - Broodwar->self()->supplyUsed() / 2 <= 2 && Broodwar->self()->getRace() != Races::Zerg)
+						{
+							if (!instance().iHaveMoney(Broodwar->self()->getRace().getSupplyProvider()))
+							{
+								return Status::Failure;
+							}
+							for (const auto item : instance().buildingsResourcesQueue)
+							{
+								if (item == Broodwar->self()->getRace().getSupplyProvider()) return Status::Failure;
+							}
+							if (Broodwar->self()->getRace() == Races::Terran)
+							{
+								for (const auto task : instance().workerTask)
+								{
+									if (task.first->getType() == Broodwar->self()->getRace().getSupplyProvider()) return Status::Failure;
+								}
+							}
+							else
+							{
+								for (const auto transforming : instance().unitTransforming_)
+								{
+									if (transforming->getType() == Broodwar->self()->getRace().getSupplyProvider()) return Status::Failure;
+								}
+							}
+							instance().chosenType_ = Broodwar->self()->getRace().getSupplyProvider();
+						}
+					}
+					if (instance().chosenType_ != UnitTypes::Unknown)
+					{
+						return Status::Success;
+					}
+					return Status::Failure;
+				}
+				catch (int e)
+				{
+					Broodwar->sendText(std::to_string(e).c_str());
+					return Status::Invalid;
+				}
+			}
+		};
+		class ChoosePlace : public bt::Leaf
+		{
+		public:
+			Status update() override
+			{
+				try
+				{
+					instance().chosenPosition_ = TilePositions::Unknown;
+					if (!instance().chosenType_.isRefinery())
+					{
+						if (instance().chosenType_.requiresPsi())
+						{
+							instance().chosenPosition_ = mapBweb.getBuildPosition(instance().chosenType_, instance().reserved_, Broodwar->self()->getStartLocation(),
+								true);
+						}
+						else
+						{
+							instance().chosenPosition_ = mapBweb.getBuildPosition(instance().chosenType_, instance().reserved_, Broodwar->self()->getStartLocation(),
+								false);
+						}
+					}
+					else
+					{
+						instance().chosenPosition_ = instance().chooseGeyser();
+					}
+					if (instance().chosenPosition_ != TilePositions::Unknown)
+					{
+						return Status::Success;
+					}
+					return Status::Failure;
+				}
+				catch (int e)
+				{
+					Broodwar->sendText(std::to_string(e).c_str());
+					return Status::Invalid;
+				}
+			}
+		};
+		class ChooseIdle : public bt::Leaf
+		{
+		public:
+			Status update() override
+			{
+				try
+				{
+					Unit chosenWorker = nullptr;
+					for (auto unit : RecollectManager::instance().workerIdle_)
+					{
+						if (!unit->isIdle())
+						{
+							continue;
+						}
+						if (!chosenWorker || unit->getDistance(Position(instance().chosenPosition_)) < chosenWorker->getDistance(
+							Position(instance().chosenPosition_)))
+						{
+							chosenWorker = unit;
+						}
+					}
+					if (chosenWorker)
+					{
+						RecollectManager::instance().workerIdle_.erase(chosenWorker);
+						pair<UnitType, TilePosition> placeType = { instance().chosenType_, instance().chosenPosition_ };
+						instance().workerBuild.insert(pair<Unit, pair<UnitType, TilePosition>>(chosenWorker, placeType));
+						instance().buildingsResourcesQueue.emplace_back(instance().chosenType_);
+						if (instance().isFromBO_)
+						{
+							instance().itemsInProgress_.emplace_back(BuildOrderManager::instance().myBo.itemsBO[0]);
+							BuildOrderManager::instance().myBo.itemsBO.erase(BuildOrderManager::instance().myBo.itemsBO.begin());
+						}
+						chosenWorker->move(Position(instance().chosenPosition_));
+						return Status::Success;
+					}
+					return Status::Failure;
+				}
+				catch (int e)
+				{
+					Broodwar->sendText(std::to_string(e).c_str());
+					return Status::Invalid;
+				}
+			}
+		};
+		class ChooseMiner : public bt::Leaf
+		{
+		public:
+			Status update() override
+			{
+				try
+				{
+					Unit chosenWorker = nullptr;
+					Unit mineral = nullptr;
+					for (const auto unit : RecollectManager::instance().workerMineral_)
+					{
+						if (unit.first->isCarryingMinerals())
+						{
+							continue;
+						}
+						if (!chosenWorker || unit.first->getDistance(Position(instance().chosenPosition_)) < chosenWorker->getDistance(
+							Position(instance().chosenPosition_)))
+						{
+							chosenWorker = unit.first;
+							mineral = unit.second;
+						}
+					}
+					if (chosenWorker && mineral)
+					{
+						RecollectManager::instance().workerMineral_.erase(chosenWorker);
+						ResourceManager::instance().minerals_[mineral]--;
+						pair<UnitType, TilePosition> placeType = { instance().chosenType_, instance().chosenPosition_ };
+						instance().workerBuild.insert(pair<Unit, pair<UnitType, TilePosition>>(chosenWorker, placeType));
+						instance().buildingsResourcesQueue.emplace_back(instance().chosenType_);
+						if (instance().isFromBO_)
+						{
+							instance().itemsInProgress_.emplace_back(BuildOrderManager::instance().myBo.itemsBO[0]);
+							BuildOrderManager::instance().myBo.itemsBO.erase(BuildOrderManager::instance().myBo.itemsBO.begin());
+						}
+						chosenWorker->move(Position(instance().chosenPosition_));
+						return Status::Success;
+					}
+					return Status::Failure;
+				}
+				catch (int e)
+				{
+					Broodwar->sendText(std::to_string(e).c_str());
+					return Status::Invalid;
+				}
+			}
+		};
+		// create a sequence
+		auto build = std::make_shared<bt::Sequence>();
+		auto chooseWorker = std::make_shared<bt::Selector>();
+		const auto chooseTypeBuilding = std::make_shared<ChooseType>();
+		const auto choosePlace = std::make_shared<ChoosePlace>();
+		const auto chooseIdleWorker = std::make_shared<ChooseIdle>();
+		const auto chooseMinerWorker = std::make_shared<ChooseMiner>();
+		build->addChild(chooseTypeBuilding);
+		build->addChild(choosePlace);
+		chooseWorker->addChild(chooseIdleWorker);
+		chooseWorker->addChild(chooseMinerWorker);
+		build->addChild(chooseWorker);
+		// set the root of the tree
+		instance().buildingTree_.setRoot(build);
+	}
 	void BuildingManager::onFrame()
 	{
-		for (auto& builder : instance().workerBuild_)
+		for (auto& builder : instance().workerBuild)
 		{
 			if (builder.first->getOrder() == Orders::PlaceBuilding)
 			{
@@ -98,100 +308,6 @@ namespace Jabbo
 				builder.first->build(builder.second.first, builder.second.second);
 			}
 		}
-		if (Broodwar->self()->minerals() < 100)
-		{
-			return;
-		}
-		auto chosenType = UnitTypes::Unknown;
-		auto isFromBO = false;
-		if (!BuildOrderManager::instance().myBo.itemsBO.empty())
-		{
-			BOItem next = BuildOrderManager::instance().myBo.itemsBO[0];
-
-			if (!next.unit.isBuilding())
-			{
-				return;
-			}
-			if (iHaveMoney(next.unit) && Broodwar->self()->supplyUsed() / 2 >= next.supply)
-			{
-				chosenType = next.unit;
-				isFromBO = true;
-			}
-		}
-		else
-		{
-			if (Broodwar->self()->supplyTotal() / 2 - Broodwar->self()->supplyUsed() / 2 <= 2 && Broodwar->self()->getRace() != Races::Zerg)
-			{
-				for (const auto item : instance().buildingsResourcesQueue_)
-				{
-					if (item == Broodwar->self()->getRace().getSupplyProvider()) return;
-				}
-				if (Broodwar->self()->getRace() == Races::Terran)
-				{
-					for (const auto task : instance().workerTask_)
-					{
-						if (task.first->getType() == Broodwar->self()->getRace().getSupplyProvider()) return;
-					}
-				}
-				else
-				{
-					for (const auto transforming : instance().unitTransforming_)
-					{
-						if (transforming->getType() == Broodwar->self()->getRace().getSupplyProvider()) return;
-					}
-				}
-				chosenType = Broodwar->self()->getRace().getSupplyProvider();
-			}
-		}
-
-		if (chosenType == UnitTypes::Unknown)
-		{
-			return;
-		}
-
-		auto chosenPosition = TilePositions::Unknown;
-		if (!chosenType.isRefinery())
-		{
-			if (chosenType.requiresPsi())
-			{
-				chosenPosition = mapBweb.getBuildPosition(chosenType, instance().reserved_, Broodwar->self()->getStartLocation(),
-					true);
-			}
-			else
-			{
-				chosenPosition = mapBweb.getBuildPosition(chosenType, instance().reserved_, Broodwar->self()->getStartLocation(),
-					false);
-			}
-		}
-		else
-		{
-			chosenPosition = instance().chooseGeyser();
-		}
-		Unit chosenWorker = nullptr;
-		for (auto unit : RecollectManager::Instance().workerIdle_)
-		{
-			if (!unit->isIdle())
-			{
-				continue;
-			}
-			if (!chosenWorker || unit->getDistance(Position(chosenPosition)) < chosenWorker->getDistance(
-				Position(chosenPosition)))
-			{
-				chosenWorker = unit;
-			}
-		}
-		if (chosenWorker)
-		{
-			RecollectManager::Instance().workerIdle_.erase(chosenWorker);
-			pair<UnitType, TilePosition> placeType = { chosenType, chosenPosition };
-			instance().workerBuild_.insert(pair<Unit, pair<UnitType, TilePosition>>(chosenWorker, placeType));
-			instance().buildingsResourcesQueue_.emplace_back(chosenType);
-			if (isFromBO)
-			{
-				instance().itemsInProgress.emplace_back(BuildOrderManager::instance().myBo.itemsBO[0]);
-				BuildOrderManager::instance().myBo.itemsBO.erase(BuildOrderManager::instance().myBo.itemsBO.begin());
-			}
-			chosenWorker->move(Position(chosenPosition));
-		}
+		instance().buildingTree_.update();
 	}
 }

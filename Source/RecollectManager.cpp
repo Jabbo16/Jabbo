@@ -5,13 +5,13 @@ namespace Jabbo {
 	RecollectManager::RecollectManager()
 		= default;
 
-	RecollectManager & RecollectManager::Instance()
+	RecollectManager & RecollectManager::instance()
 	{
 		static RecollectManager instance;
 		return instance;
 	}
 
-	void RecollectManager::init()
+	void RecollectManager::initTree()
 	{
 		class ChooseWorker : public bt::Leaf
 		{
@@ -20,14 +20,15 @@ namespace Jabbo {
 			{
 				try
 				{
-					for (auto unit : Instance().workerIdle_)
+					for (auto unit : instance().workerIdle_)
 					{
 						if (unit->getLastCommandFrame() != Broodwar->getFrameCount())
 						{
-							Instance().chosenWorker = unit;
+							instance().chosenWorker = unit;
 							return Status::Success;
 						}
 					}
+					instance().chosenWorker = nullptr;
 					return Status::Failure;
 				}
 				catch (int e)
@@ -45,9 +46,9 @@ namespace Jabbo {
 			{
 				try
 				{
-					if (Instance().chosenWorker != nullptr)
+					if (instance().chosenWorker != nullptr)
 					{
-						if (Instance().chosenWorker->exists())
+						if (instance().chosenWorker->exists())
 						{
 							if (ResourceManager::instance().minerals_.empty())
 							{
@@ -60,7 +61,7 @@ namespace Jabbo {
 								{
 									continue;
 								}
-								if (!closestMineral || mineral.first->getDistance(Instance().chosenWorker) < closestMineral->getDistance(Instance().chosenWorker))
+								if (!closestMineral || mineral.first->getDistance(instance().chosenWorker) < closestMineral->getDistance(instance().chosenWorker))
 								{
 									closestMineral = mineral.first;
 								}
@@ -68,14 +69,15 @@ namespace Jabbo {
 							if (closestMineral)
 							{
 								ResourceManager::instance().minerals_[closestMineral]++;
-								Instance().workerMineral_.insert(pair<Unit, Unit>{Instance().chosenWorker, closestMineral});
-								Instance().workerIdle_.erase(Instance().chosenWorker);
-								Instance().chosenWorker->gather(closestMineral);
-								Instance().chosenWorker = nullptr;
+								instance().workerMineral_.insert(pair<Unit, Unit>{instance().chosenWorker, closestMineral});
+								instance().workerIdle_.erase(instance().chosenWorker);
+								instance().chosenWorker->gather(closestMineral);
+								instance().chosenWorker = nullptr;
 								return Status::Success;
 							}
 						}
 					}
+					instance().chosenWorker = nullptr;
 					return Status::Failure;
 				}
 				catch (int e)
@@ -93,12 +95,12 @@ namespace Jabbo {
 		gather->addChild(chooseWorkerGather);
 		gather->addChild(gatherMinerals);
 		// set the root of the tree
-		Instance().RecollectionTree.setRoot(gather);
+		instance().RecollectionTree.setRoot(gather);
 	}
 
 	void RecollectManager::mineralLocking()
 	{
-		for (const auto m : Instance().workerMineral_)
+		for (const auto m : instance().workerMineral_)
 		{
 			if (m.first->getLastCommandFrame() == Broodwar->getFrameCount())
 			{
@@ -116,29 +118,29 @@ namespace Jabbo {
 	}
 	void RecollectManager::onFrame()
 	{
-		Instance().RecollectionTree.update();
-		Instance().mineralLocking();
+		instance().RecollectionTree.update();
+		instance().mineralLocking();
 	}
 
 	void RecollectManager::onUnitDestroy(const BWAPI::Unit unit)
 	{
-		auto found = Instance().workerGas_.find(unit);
-		auto isIn = found != Instance().workerGas_.end();
+		auto found = instance().workerGas_.find(unit);
+		auto isIn = found != instance().workerGas_.end();
 		if (isIn)
 		{
-			Instance().workerGas_.erase(found);
+			instance().workerGas_.erase(found);
 		}
-		found = Instance().workerMineral_.find(unit);
-		isIn = found != Instance().workerMineral_.end();
+		found = instance().workerMineral_.find(unit);
+		isIn = found != instance().workerMineral_.end();
 		if (isIn)
 		{
-			Instance().workerMineral_.erase(found);
+			instance().workerMineral_.erase(found);
 		}
-		const auto foundIdle = Instance().workerIdle_.find(unit);
-		isIn = foundIdle != Instance().workerIdle_.end();
+		const auto foundIdle = instance().workerIdle_.find(unit);
+		isIn = foundIdle != instance().workerIdle_.end();
 		if (isIn)
 		{
-			Instance().workerIdle_.erase(foundIdle);
+			instance().workerIdle_.erase(foundIdle);
 		}
 	}
 
@@ -151,7 +153,7 @@ namespace Jabbo {
 	{
 		if (unit->getType().isWorker())
 		{
-			Instance().workerIdle_.insert(unit);
+			instance().workerIdle_.insert(unit);
 		}
 	}
 }
