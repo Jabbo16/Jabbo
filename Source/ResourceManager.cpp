@@ -22,11 +22,11 @@ namespace Jabbo {
 			{
 				for (auto &m : base.minerals)
 				{
-					instance().minerals_.insert(std::pair<Unit, int>(m, 0));
+					instance().minerals.insert(std::pair<Unit, int>(m, 0));
 				}
 				for (auto &g : base.geysers)
 				{
-					instance().gas_.insert(std::pair<Unit, int>(g, 0));
+					instance().gas.insert(std::pair<Unit, int>(g, 0));
 				}
 				break;
 			}

@@ -20,7 +20,7 @@ namespace Jabbo {
 			{
 				try
 				{
-					for (auto unit : instance().workerIdle_)
+					for (auto unit : instance().workerIdle)
 					{
 						if (unit->getLastCommandFrame() != Broodwar->getFrameCount())
 						{
@@ -50,12 +50,12 @@ namespace Jabbo {
 					{
 						if (instance().chosenWorker->exists())
 						{
-							if (ResourceManager::instance().minerals_.empty())
+							if (ResourceManager::instance().minerals.empty())
 							{
 								return Status::Failure;
 							}
 							Unit closestMineral = nullptr;
-							for (const auto mineral : ResourceManager::instance().minerals_)
+							for (const auto mineral : ResourceManager::instance().minerals)
 							{
 								if (mineral.second >= 2)
 								{
@@ -68,9 +68,9 @@ namespace Jabbo {
 							}
 							if (closestMineral)
 							{
-								ResourceManager::instance().minerals_[closestMineral]++;
-								instance().workerMineral_.insert(pair<Unit, Unit>{instance().chosenWorker, closestMineral});
-								instance().workerIdle_.erase(instance().chosenWorker);
+								ResourceManager::instance().minerals[closestMineral]++;
+								instance().workerMineral.insert(pair<Unit, Unit>{instance().chosenWorker, closestMineral});
+								instance().workerIdle.erase(instance().chosenWorker);
 								instance().chosenWorker->gather(closestMineral);
 								instance().chosenWorker = nullptr;
 								return Status::Success;
@@ -95,12 +95,12 @@ namespace Jabbo {
 		gather->addChild(chooseWorkerGather);
 		gather->addChild(gatherMinerals);
 		// set the root of the tree
-		instance().RecollectionTree.setRoot(gather);
+		instance().recollectionTree_.setRoot(gather);
 	}
 
 	void RecollectManager::mineralLocking()
 	{
-		for (const auto m : instance().workerMineral_)
+		for (const auto m : instance().workerMineral)
 		{
 			if (m.first->getLastCommandFrame() == Broodwar->getFrameCount())
 			{
@@ -118,42 +118,49 @@ namespace Jabbo {
 	}
 	void RecollectManager::onFrame()
 	{
-		instance().RecollectionTree.update();
+		instance().recollectionTree_.update();
 		instance().mineralLocking();
 	}
 
-	void RecollectManager::onUnitDestroy(const BWAPI::Unit unit)
+	// Only worker units
+	void RecollectManager::onUnitDestroy(const Unit unit)
 	{
-		auto found = instance().workerGas_.find(unit);
-		auto isIn = found != instance().workerGas_.end();
+		// Workers gathering gas
+		auto found = instance().workerGas.find(unit);
+		auto isIn = found != instance().workerGas.end();
 		if (isIn)
 		{
-			instance().workerGas_.erase(found);
+			ResourceManager::instance().gas[instance().workerGas[unit]]--;
+			instance().workerGas.erase(unit);
+			return;
 		}
-		found = instance().workerMineral_.find(unit);
-		isIn = found != instance().workerMineral_.end();
+
+		// Workers gathering minerals
+		found = instance().workerMineral.find(unit);
+		isIn = found != instance().workerMineral.end();
 		if (isIn)
 		{
-			instance().workerMineral_.erase(found);
+			ResourceManager::instance().minerals[instance().workerMineral[unit]]--;
+			instance().workerMineral.erase(found);
+			return;
 		}
-		const auto foundIdle = instance().workerIdle_.find(unit);
-		isIn = foundIdle != instance().workerIdle_.end();
+
+		// Workers being idle
+		const auto foundIdle = instance().workerIdle.find(unit);
+		isIn = foundIdle != instance().workerIdle.end();
 		if (isIn)
 		{
-			instance().workerIdle_.erase(foundIdle);
+			instance().workerIdle.erase(unit);
 		}
 	}
 
-	void RecollectManager::onUnitRenegade(BWAPI::Unit unit)
+	void RecollectManager::onUnitRenegade(const Unit unit)
 	{
 		onUnitDestroy(unit);
 	}
 
-	void RecollectManager::onUnitComplete(const BWAPI::Unit unit)
+	void RecollectManager::onUnitComplete(const Unit unit)
 	{
-		if (unit->getType().isWorker())
-		{
-			instance().workerIdle_.insert(unit);
-		}
+		instance().workerIdle.insert(unit);
 	}
 }

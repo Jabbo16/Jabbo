@@ -49,7 +49,7 @@ namespace Jabbo
 				else
 				{
 					instance().unitTransforming_.insert(unit);
-					RecollectManager::instance().workerIdle_.insert(builder.first);
+					RecollectManager::instance().workerIdle.insert(builder.first);
 				}
 				for (const auto type : instance().buildingsResourcesQueue)
 				{
@@ -71,7 +71,7 @@ namespace Jabbo
 		{
 			if (instance().workerTask.find(unit) != instance().workerTask.end())
 			{
-				RecollectManager::instance().workerIdle_.insert(instance().workerTask[unit]);
+				RecollectManager::instance().workerIdle.insert(instance().workerTask[unit]);
 				// TODO insertar en lista de edificios
 				instance().workerTask.erase(unit);
 			}
@@ -84,6 +84,10 @@ namespace Jabbo
 				instance().unitTransforming_.erase(unit);
 			}
 		}
+	}
+
+	void BuildingManager::onUnitDestroy(Unit)
+	{
 	}
 
 	void BuildingManager::initTree()
@@ -199,7 +203,7 @@ namespace Jabbo
 				try
 				{
 					Unit chosenWorker = nullptr;
-					for (auto unit : RecollectManager::instance().workerIdle_)
+					for (auto unit : RecollectManager::instance().workerIdle)
 					{
 						if (!unit->isIdle())
 						{
@@ -213,7 +217,7 @@ namespace Jabbo
 					}
 					if (chosenWorker)
 					{
-						RecollectManager::instance().workerIdle_.erase(chosenWorker);
+						RecollectManager::instance().workerIdle.erase(chosenWorker);
 						pair<UnitType, TilePosition> placeType = { instance().chosenType_, instance().chosenPosition_ };
 						instance().workerBuild.insert(pair<Unit, pair<UnitType, TilePosition>>(chosenWorker, placeType));
 						instance().buildingsResourcesQueue.emplace_back(instance().chosenType_);
@@ -243,7 +247,7 @@ namespace Jabbo
 				{
 					Unit chosenWorker = nullptr;
 					Unit mineral = nullptr;
-					for (const auto unit : RecollectManager::instance().workerMineral_)
+					for (const auto unit : RecollectManager::instance().workerMineral)
 					{
 						if (unit.first->isCarryingMinerals())
 						{
@@ -258,8 +262,8 @@ namespace Jabbo
 					}
 					if (chosenWorker && mineral)
 					{
-						RecollectManager::instance().workerMineral_.erase(chosenWorker);
-						ResourceManager::instance().minerals_[mineral]--;
+						RecollectManager::instance().workerMineral.erase(chosenWorker);
+						ResourceManager::instance().minerals[mineral]--;
 						pair<UnitType, TilePosition> placeType = { instance().chosenType_, instance().chosenPosition_ };
 						instance().workerBuild.insert(pair<Unit, pair<UnitType, TilePosition>>(chosenWorker, placeType));
 						instance().buildingsResourcesQueue.emplace_back(instance().chosenType_);

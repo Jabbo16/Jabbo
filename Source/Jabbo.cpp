@@ -128,12 +128,18 @@ void JabboModule::onUnitHide(const BWAPI::Unit unit)
 
 void JabboModule::onUnitCreate(const BWAPI::Unit unit)
 {
-	if (unit->getPlayer() == Broodwar->self()) BuildingManager::onUnitCreate(unit);
 	UnitInfoManager::getInstance().onUnitCreate(unit);
+	if (unit->getPlayer() == Broodwar->self()) {
+		if (unit->getType().isBuilding())
+		{
+			BuildingManager::onUnitCreate(unit);
+		}
+	}
 }
 
 void JabboModule::onUnitDestroy(const BWAPI::Unit unit)
 {
+	UnitInfoManager::getInstance().onUnitDestroy(unit);
 	mapBweb.onUnitDestroy(unit);
 	if (unit->getType().isMineralField())
 	{
@@ -143,7 +149,18 @@ void JabboModule::onUnitDestroy(const BWAPI::Unit unit)
 	{
 		bwem.OnStaticBuildingDestroyed(unit);
 	}
-	UnitInfoManager::getInstance().onUnitDestroy(unit);
+	if (unit->getPlayer() == Broodwar->self())
+	{
+		if (unit->getType().isWorker())
+		{
+			RecollectManager::onUnitDestroy(unit);
+			return;
+		}
+		if (unit->getType().isBuilding())
+		{
+			BuildingManager::onUnitDestroy(unit);
+		}
+	}
 }
 
 void JabboModule::onUnitMorph(const BWAPI::Unit unit)
@@ -164,7 +181,17 @@ void JabboModule::onSaveGame(const std::string gameName)
 
 void JabboModule::onUnitComplete(const BWAPI::Unit unit)
 {
-	RecollectManager::onUnitComplete(unit);
-	BuildingManager::onUnitComplete(unit);
 	UnitInfoManager::getInstance().onUnitComplete(unit);
+	if (unit->getPlayer() == Broodwar->self())
+	{
+		if (unit->getType().isWorker())
+		{
+			RecollectManager::onUnitComplete(unit);
+			return;
+		}
+		if (unit->getType().isBuilding())
+		{
+			BuildingManager::onUnitComplete(unit);
+		}
+	}
 }

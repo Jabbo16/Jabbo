@@ -12,7 +12,7 @@ namespace Jabbo {
 		class ChoosePlace : public bt::Leaf {};
 		class ChooseType : public bt::Leaf {};
 		TilePosition chosenPosition_;
-		vector< BOItem > itemsInProgress_; //TODO remove item when its completed/created
+		vector< BOItem > itemsInProgress_; // TODO remove item when its completed/created
 		UnitType chosenType_ = UnitTypes::Unknown;
 		bool isFromBO_ = false;
 		set<Unit> unitTransforming_;
@@ -31,6 +31,7 @@ namespace Jabbo {
 		static BuildingManager & instance();
 		static void onUnitCreate(Unit);
 		static void onUnitComplete(Unit);
+		static void onUnitDestroy(Unit); // TODO implement method
 		static void initTree();
 	};
 }

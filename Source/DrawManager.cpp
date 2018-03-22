@@ -15,19 +15,19 @@ namespace Jabbo {
 
 	void DrawManager::onFrame()
 	{
-		for (const auto m : ResourceManager::instance().minerals_)
+		for (const auto m : ResourceManager::instance().minerals)
 		{
 			string text = to_string(m.second);
 			drawTextUnit(m.first->getPosition(), text);
 		}
 
-		for (const auto m : RecollectManager::instance().workerMineral_)
+		for (const auto m : RecollectManager::instance().workerMineral)
 		{
 			string text = "Miner";
 			drawTextUnit(m.first->getPosition(), text);
 			Broodwar->drawLineMap(m.first->getPosition(), m.second->getPosition(), Colors::Red);
 		}
-		for (const auto m : RecollectManager::instance().workerIdle_)
+		for (const auto m : RecollectManager::instance().workerIdle)
 		{
 			string text = "Idle";
 			drawTextUnit(m->getPosition(), text);

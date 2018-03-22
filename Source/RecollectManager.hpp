@@ -11,19 +11,20 @@ namespace Jabbo {
 
 	class RecollectManager
 	{
+		bt::BehaviorTree recollectionTree_;
 	public:
-		bt::BehaviorTree RecollectionTree;
-		map<Unit, Unit> workerMineral_;
-		map<Unit, Unit> workerGas_;
-		set<Unit> workerIdle_;
+		// Left->Worker , Right->Resource
+		map<Unit, Unit> workerMineral;
+		map<Unit, Unit> workerGas;
+		set<Unit> workerIdle;
 		Unit chosenWorker = nullptr;
 		RecollectManager();
 		static void initTree();
 		static void mineralLocking();
 		static void onFrame();
-		static void onUnitDestroy(BWAPI::Unit unit);
-		static void onUnitRenegade(BWAPI::Unit unit);
-		static void onUnitComplete(BWAPI::Unit unit);
+		static void onUnitDestroy(Unit);
+		static void onUnitRenegade(Unit);
+		static void onUnitComplete(Unit);
 		static RecollectManager & instance();
 	};
 }
