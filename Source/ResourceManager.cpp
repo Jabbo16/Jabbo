@@ -24,10 +24,10 @@ namespace Jabbo {
 				{
 					instance().minerals.insert(std::pair<Unit, int>(m, 0));
 				}
-				for (auto &g : base.geysers)
-				{
-					instance().gas.insert(std::pair<Unit, int>(g, 0));
-				}
+				//				for (auto &g : base.geysers)
+				//				{
+				//					instance().gas.insert(std::pair<Unit, int>(g.first, 0));
+				//				}
 				break;
 			}
 		}

@@ -27,6 +27,8 @@ void JabboModule::onStart()
 	UnitInfoManager::getInstance().onStart();
 	Unit firstCC = nullptr;
 	Broodwar->enableFlag(Flag::UserInput);
+	Broodwar->setLocalSpeed(0);
+	Broodwar->setFrameSkip(1000);
 	BaseManager::initBaseManager();
 	ResourceManager::initBaseResources();
 	RecollectManager::initTree();
@@ -47,10 +49,12 @@ void JabboModule::onEnd(const bool isWinner)
 void JabboModule::onFrame()
 {
 	// Called once every game frame
-	mapBweb.draw();
+	// mapBweb.draw();
 
 	if (Broodwar->getFrameCount() % Broodwar->getLatencyFrames() != 0)
 	{
+		// activates the onFrame of UnitInfoManager
+		UnitInfoManager::getInstance().onFrame();
 		DrawManager::onFrame();
 		return;
 	}
@@ -165,6 +169,10 @@ void JabboModule::onUnitDestroy(const BWAPI::Unit unit)
 
 void JabboModule::onUnitMorph(const BWAPI::Unit unit)
 {
+	if (unit->getType().isRefinery() && unit->getPlayer() == Broodwar->self())
+	{
+		BuildingManager::onUnitCreate(unit);
+	}
 	mapBweb.onUnitMorph(unit);
 	UnitInfoManager::getInstance().onUnitMorph(unit);
 }

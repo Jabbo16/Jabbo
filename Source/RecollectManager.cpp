@@ -88,12 +88,62 @@ namespace Jabbo {
 			}
 		};
 
+		class gatherGas : public bt::Leaf
+		{
+		public:
+			Status update() override
+			{
+				try
+				{
+					if (instance().chosenWorker != nullptr)
+					{
+						if (instance().chosenWorker->exists())
+						{
+							if (ResourceManager::instance().gas.empty())
+							{
+								return Status::Failure;
+							}
+							Unit chosenRefinery = nullptr;
+							for (const auto gas : ResourceManager::instance().gas)
+							{
+								if (gas.second >= 3)
+								{
+									continue;
+								}
+
+								chosenRefinery = gas.first;
+							}
+							if (chosenRefinery)
+							{
+								ResourceManager::instance().gas[chosenRefinery]++;
+								instance().workerGas.insert(pair<Unit, Unit>{instance().chosenWorker, chosenRefinery});
+								instance().workerIdle.erase(instance().chosenWorker);
+								instance().chosenWorker->gather(chosenRefinery);
+								instance().chosenWorker = nullptr;
+								return Status::Success;
+							}
+						}
+					}
+					return Status::Failure;
+				}
+				catch (int e)
+				{
+					Broodwar->sendText(std::to_string(e).c_str());
+					return Status::Invalid;
+				}
+			}
+		};
+
 		// create a sequence
 		auto gather = std::make_shared<bt::Sequence>();
+		auto chooseMineralOrGeyser = std::make_shared<bt::Selector>();
 		const auto chooseWorkerGather = std::make_shared<ChooseWorker>();
+		const auto gatherGeyser = std::make_shared<gatherGas>();
 		const auto gatherMinerals = std::make_shared<gatherMineral>();
 		gather->addChild(chooseWorkerGather);
-		gather->addChild(gatherMinerals);
+		chooseMineralOrGeyser->addChild(gatherGeyser);
+		chooseMineralOrGeyser->addChild(gatherMinerals);
+		gather->addChild(chooseMineralOrGeyser);
 		// set the root of the tree
 		instance().recollectionTree_.setRoot(gather);
 	}

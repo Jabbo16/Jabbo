@@ -14,9 +14,9 @@ namespace Jabbo {
 		bt::BehaviorTree recollectionTree_;
 	public:
 		// Left->Worker , Right->Resource
-		map<Unit, Unit> workerMineral;
-		map<Unit, Unit> workerGas;
-		set<Unit> workerIdle;
+		map<Unit, Unit> workerMineral{};
+		map<Unit, Unit> workerGas{};
+		set<Unit> workerIdle{};
 		Unit chosenWorker = nullptr;
 		RecollectManager();
 		static void initTree();

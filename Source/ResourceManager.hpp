@@ -10,8 +10,8 @@ namespace Jabbo {
 	class ResourceManager
 	{
 	public:
-		map<Unit, int> minerals;
-		map<Unit, int> gas;
+		map<Unit, int> minerals{};
+		map<Unit, int> gas{};
 		ResourceManager();
 		static void onUnitDestroy(Unit); // TODO implement
 		static void initBaseResources();

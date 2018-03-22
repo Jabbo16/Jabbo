@@ -27,7 +27,22 @@ namespace Jabbo
 
 	TilePosition BuildingManager::chooseGeyser()
 	{
-		return TilePositions::Invalid;
+		for (auto base : BaseManager::instance().bases)
+		{
+			if (base.owner != Ally || base.geysers.empty())
+			{
+				continue;
+			}
+			for (auto g : base.geysers)
+			{
+				if (!g.second)
+				{
+					base.geysers[g.first] = true;
+					return g.first->getTilePosition();
+				}
+			}
+		}
+		return TilePositions::Unknown;
 	}
 
 	BuildingManager& BuildingManager::instance()
@@ -67,6 +82,10 @@ namespace Jabbo
 
 	void BuildingManager::onUnitComplete(const Unit unit)
 	{
+		if (unit->getType().isRefinery())
+		{
+			ResourceManager::instance().gas.insert(std::pair<Unit, int>(unit, 0));
+		}
 		if (Broodwar->self()->getRace() == Races::Terran)
 		{
 			if (instance().workerTask.find(unit) != instance().workerTask.end())

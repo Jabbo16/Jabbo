@@ -27,11 +27,11 @@ namespace Jabbo {
 	struct Base
 	{
 		Base() = default;
-		const BWEM::Base * base;
+		const BWEM::Base * base{};
 		TilePosition tile{};
 		set<Unit> minerals{};
-		set<Unit> geysers{};
-		const BWEM::Area * area;
+		map<Unit, bool> geysers{};
+		const BWEM::Area * area{};
 		owner owner = Neutral;
 		bool starting = false;
 

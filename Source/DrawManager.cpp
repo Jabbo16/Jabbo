@@ -27,22 +27,36 @@ namespace Jabbo {
 			drawTextUnit(m.first->getPosition(), text);
 			Broodwar->drawLineMap(m.first->getPosition(), m.second->getPosition(), Colors::Red);
 		}
+
+		for (const auto g : RecollectManager::instance().workerGas)
+		{
+			if (g.first->getOrder() == Orders::HarvestGas)
+			{
+				continue;
+			}
+			string text = "Gaser";
+			drawTextUnit(g.first->getPosition(), text);
+		}
+
 		for (const auto m : RecollectManager::instance().workerIdle)
 		{
 			string text = "Idle";
 			drawTextUnit(m->getPosition(), text);
 		}
+
 		for (const auto m : BuildingManager::instance().workerBuild)
 		{
 			string text = "Builder";
 			drawTextUnit(m.first->getPosition(), text);
 			drawBoxUnit(m.second.second, m.second.first, Colors::Yellow);
 		}
+
 		for (const auto m : BuildingManager::instance().workerTask)
 		{
 			string text = "Tasked";
 			drawTextUnit(m.second->getPosition(), text);
 		}
+
 		for (const auto enemy : UnitInfoManager::getInstance().getUnitDataOfPlayer(Broodwar->enemy()).getUnits())
 		{
 			drawUnit(enemy.first, Colors::Red);
@@ -51,6 +65,7 @@ namespace Jabbo {
 		// Display the game frame rate as text in the upper left area of the screen
 		Broodwar->drawTextScreen(200, 0, "FPS: %d", Broodwar->getFPS());
 		Broodwar->drawTextScreen(200, 20, "Average FPS: %f", Broodwar->getAverageFPS());
+		Broodwar->drawTextScreen(200, 60, "%s", Broodwar->getLastError().c_str());
 		if (!BuildOrderManager::instance().myBo.itemsBO.empty())
 		{
 			Broodwar->drawTextScreen(200, 40, "Next Item in BO Queue: %s",

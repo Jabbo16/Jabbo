@@ -10,11 +10,8 @@ void BuildOrderManager::oneGateCore() {
 	addPiece.supply = 10;
 	addPiece.unit = UnitTypes::Protoss_Gateway;
 	myBo.itemsBO.push_back(addPiece);
-	//	addPiece.supply = 12;
-	//	addPiece.unit = UnitTypes::Protoss_Assimilator;
-	//	myBo.itemsBO.push_back(addPiece);
-	addPiece.supply = 12; //Temporal change till refineries working
-	addPiece.unit = UnitTypes::Protoss_Gateway;
+	addPiece.supply = 12;
+	addPiece.unit = UnitTypes::Protoss_Assimilator;
 	myBo.itemsBO.push_back(addPiece);
 
 	addPiece.supply = 14;
@@ -32,10 +29,7 @@ void BuildOrderManager::bioBuild() {
 	addPiece.supply = 10;
 	addPiece.unit = UnitTypes::Terran_Barracks;
 	myBo.itemsBO.push_back(addPiece);
-	//	addPiece.supply = 12;
-	//	addPiece.unit = UnitTypes::Protoss_Assimilator;
-	//	myBo.itemsBO.push_back(addPiece);
-	addPiece.supply = 12; //Temporal change till refineries working
+	addPiece.supply = 12;
 	addPiece.unit = UnitTypes::Terran_Barracks;
 	myBo.itemsBO.push_back(addPiece);
 	addPiece.supply = 15;

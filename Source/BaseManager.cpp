@@ -18,7 +18,7 @@ namespace Jabbo
 				}
 				for (auto& g : base.Geysers())
 				{
-					newBase.geysers.insert(g->Unit());
+					newBase.geysers.insert(pair<Unit, bool>(g->Unit(), false));
 				}
 				newBase.area = base.GetArea();
 				newBase.base = &base;
