@@ -2,6 +2,7 @@
 #include "ResourceManager.hpp"
 #include "RecollectManager.hpp"
 #include "BuildingManager.hpp"
+#include "TrainingManager.hpp"
 using namespace scutil;
 namespace Jabbo {
 	DrawManager::DrawManager()
@@ -66,6 +67,7 @@ namespace Jabbo {
 		Broodwar->drawTextScreen(200, 0, "FPS: %d", Broodwar->getFPS());
 		Broodwar->drawTextScreen(200, 20, "Average FPS: %f", Broodwar->getAverageFPS());
 		Broodwar->drawTextScreen(200, 60, "%s", Broodwar->getLastError().c_str());
+
 		if (!BuildOrderManager::instance().myBo.itemsBO.empty())
 		{
 			Broodwar->drawTextScreen(200, 40, "Next Item in BO Queue: %s",

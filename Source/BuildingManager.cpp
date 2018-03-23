@@ -3,6 +3,7 @@
 #include "BuildOrderManager.hpp"
 #include "BaseManager.hpp"
 #include "ResourceManager.hpp"
+#include "TrainingManager.hpp"
 
 namespace
 {

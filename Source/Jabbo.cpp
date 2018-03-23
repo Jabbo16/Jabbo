@@ -18,7 +18,7 @@ void JabboModule::onStart()
 	bwem.EnableAutomaticPathAnalysis();
 	auto startingLocationsOK = bwem.FindBasesForStartingLocations();
 	assert(startingLocationsOK);
-	BWEM::utils::MapPrinter::Initialize(&bwem);
+	MapPrinter::Initialize(&bwem);
 
 	mapBweb.onStart();
 	std::vector<UnitType> wall = { UnitTypes::Terran_Supply_Depot, UnitTypes::Terran_Barracks, UnitTypes::Terran_Bunker };
@@ -27,8 +27,8 @@ void JabboModule::onStart()
 	UnitInfoManager::getInstance().onStart();
 	Unit firstCC = nullptr;
 	Broodwar->enableFlag(Flag::UserInput);
-	Broodwar->setLocalSpeed(0);
-	Broodwar->setFrameSkip(1000);
+	//	Broodwar->setLocalSpeed(0);
+	//	Broodwar->setFrameSkip(1000);
 	BaseManager::initBaseManager();
 	ResourceManager::initBaseResources();
 	RecollectManager::initTree();

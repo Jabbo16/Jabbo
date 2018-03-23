@@ -25,5 +25,6 @@ public:
 	static BuildOrderManager& instance();
 	BuildOrder myBo;
 	void oneGateCore();
+	void fourGate();
 	void bioBuild();
 };
