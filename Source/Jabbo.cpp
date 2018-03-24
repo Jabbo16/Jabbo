@@ -147,6 +147,7 @@ void JabboModule::onUnitDestroy(const BWAPI::Unit unit)
 	mapBweb.onUnitDestroy(unit);
 	if (unit->getType().isMineralField())
 	{
+		ResourceManager::onMineralDestroy(unit);
 		bwem.OnMineralDestroyed(unit);
 	}
 	else if (unit->getType().isSpecialBuilding())
@@ -160,10 +161,8 @@ void JabboModule::onUnitDestroy(const BWAPI::Unit unit)
 			RecollectManager::onUnitDestroy(unit);
 			return;
 		}
-		if (unit->getType().isBuilding())
-		{
-			BuildingManager::onUnitDestroy(unit);
-		}
+
+		BuildingManager::onUnitDestroy(unit);
 	}
 }
 

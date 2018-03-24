@@ -11,7 +11,7 @@ namespace Jabbo {
 	TrainingManager::TrainingManager()
 		= default;
 
-	TrainingManager & TrainingManager::Instance()
+	TrainingManager & TrainingManager::instance()
 	{
 		static TrainingManager instance;
 		return instance;
@@ -43,7 +43,7 @@ namespace Jabbo {
 		}
 	}
 
-	void TrainingManager::updateProtossUnitScore(UnitType unit, int count)
+	void TrainingManager::updateProtossUnitScore(UnitType unit, const int count)
 	{
 		switch (unit)
 		{
@@ -168,7 +168,7 @@ namespace Jabbo {
 	{
 		//Workers
 		auto myUnitData = UnitInfoManager::getInstance().getUnitDataOfPlayer(Broodwar->self());
-		if (Broodwar->self()->allUnitCount(Broodwar->self()->getRace().getWorker()) < ResourceManager::instance().minerals.size() * 2 + ResourceManager::instance().gas.size() + 1)
+		if (unsigned int(Broodwar->self()->allUnitCount(Broodwar->self()->getRace().getWorker())) < unsigned int(ResourceManager::instance().minerals.size() * 2 + ResourceManager::instance().gas.size() + 1))
 		{
 			for (auto u : myUnitData.getUnits())
 			{
@@ -197,7 +197,7 @@ namespace Jabbo {
 
 			if (!next.unit.isBuilding())
 			{
-				if (Instance().iHaveMoney(next.unit) && Broodwar->self()->supplyUsed() / 2 >= next.supply)
+				if (instance().iHaveMoney(next.unit) && Broodwar->self()->supplyUsed() / 2 >= next.supply)
 				{
 					for (auto &b : myUnitData.getUnits())
 					{
@@ -205,7 +205,7 @@ namespace Jabbo {
 						{
 							b.first->train(next.unit);
 							const auto frame = next.unit.buildTime() + Broodwar->getFrameCount();
-							Instance().unitQueue.emplace_back(unitItemQueue{ b.first, next.unit, frame, true });
+							instance().unitQueue.emplace_back(unitItemQueue{ b.first, next.unit, frame, true });
 							BuildOrderManager::instance().myBo.itemsBO.erase(BuildOrderManager::instance().myBo.itemsBO.begin());
 							return;
 						}
@@ -213,7 +213,7 @@ namespace Jabbo {
 				}
 			}
 		}
-		Instance().updateScoring();
+		instance().updateScoring();
 		Unit building = nullptr;
 		auto highestType = UnitTypes::None;
 		for (auto &b : myUnitData.getUnits())
@@ -229,9 +229,9 @@ namespace Jabbo {
 				{
 					continue;
 				}
-				if (Instance().getUnitScore()[unit] >= highestPriority)
+				if (instance().getUnitScore()[unit] >= highestPriority)
 				{
-					highestPriority = Instance().getUnitScore()[unit];
+					highestPriority = instance().getUnitScore()[unit];
 					highestType = unit;
 					building = b.first;
 				}
@@ -242,7 +242,7 @@ namespace Jabbo {
 		{
 			building->train(highestType);
 			auto const frame = highestType.buildTime() + Broodwar->getFrameCount();
-			Instance().unitQueue.emplace_back(unitItemQueue{ building, highestType, frame, false });
+			instance().unitQueue.emplace_back(unitItemQueue{ building, highestType, frame, false });
 			// TODO Remove Item from queue at onCreate() or onComplete() and OnDestroy()
 		}
 	}

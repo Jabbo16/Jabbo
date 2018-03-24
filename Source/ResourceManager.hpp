@@ -13,7 +13,7 @@ namespace Jabbo {
 		map<Unit, int> minerals{};
 		map<Unit, int> gas{};
 		ResourceManager();
-		static void onUnitDestroy(Unit); // TODO implement
+		static void onMineralDestroy(Unit);
 		static void initBaseResources();
 		static ResourceManager & instance();
 	};

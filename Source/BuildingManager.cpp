@@ -56,7 +56,7 @@ namespace Jabbo
 	{
 		for (auto& builder : instance().workerBuild)
 		{
-			if (builder.second.first == unit->getType() && builder.second.second == unit->getTilePosition())
+			if (builder.second.type == unit->getType() && builder.second.pos == unit->getTilePosition())
 			{
 				if (Broodwar->self()->getRace() == Races::Terran)
 				{
@@ -64,7 +64,7 @@ namespace Jabbo
 				}
 				else
 				{
-					instance().unitTransforming_.insert(unit);
+					instance().unitTransforming_.insert(pair<Unit, buildInfo>(unit, builder.second));
 					RecollectManager::instance().workerIdle.insert(builder.first);
 				}
 				for (const auto type : instance().buildingsResourcesQueue)
@@ -75,6 +75,12 @@ namespace Jabbo
 						break;
 					}
 				}
+				if (builder.second.isFromBO)
+				{
+					instance().itemsInProgress_.insert(pair<Unit, BOItem>(unit, instance().itemsInProgress_[builder.first]));
+					instance().itemsInProgress_.erase(builder.first);
+				}
+				instance().reserved_.erase(builder.second.pos);
 				instance().workerBuild.erase(builder.first);
 				break;
 			}
@@ -93,6 +99,10 @@ namespace Jabbo
 			{
 				RecollectManager::instance().workerIdle.insert(instance().workerTask[unit]);
 				// TODO insertar en lista de edificios
+				if (instance().itemsInProgress_.find(unit) != instance().itemsInProgress_.end())
+				{
+					instance().itemsInProgress_.erase(unit);
+				}
 				instance().workerTask.erase(unit);
 			}
 		}
@@ -101,13 +111,96 @@ namespace Jabbo
 			if (instance().unitTransforming_.find(unit) != instance().unitTransforming_.end())
 			{
 				// TODO insertar en lista de edificios
+				if (instance().unitTransforming_[unit].isFromBO)
+				{
+					instance().itemsInProgress_.erase(unit);
+				}
 				instance().unitTransforming_.erase(unit);
 			}
 		}
 	}
 
-	void BuildingManager::onUnitDestroy(Unit)
+	void BuildingManager::onUnitDestroy(const Unit unit)
 	{
+		// If unit is my worker
+		if (unit->getType().isWorker())
+		{
+			// If worker is in workerBuild
+			if (instance().workerBuild.find(unit) != instance().workerBuild.end())
+			{
+				const auto aux = instance().workerBuild[unit];
+
+				// If item is from BO, remove from ItemsInProgress and add to myBO
+				if (aux.isFromBO)
+				{
+					if (instance().itemsInProgress_.find(unit) != instance().itemsInProgress_.end())
+					{
+						BuildOrderManager::instance().myBo.itemsBO.insert(BuildOrderManager::instance().myBo.itemsBO.begin(), instance().itemsInProgress_[unit]);
+						instance().itemsInProgress_.erase(unit);
+					}
+				}
+				// Remove reserved Tile and remove from reserved money buildings list
+				instance().reserved_.erase(aux.pos);
+				for (auto it = instance().buildingsResourcesQueue.begin(); it != instance().buildingsResourcesQueue.end(); ++it)
+				{
+					if ((*it) == aux.type)
+					{
+						instance().buildingsResourcesQueue.erase(it);
+						break;
+					}
+				}
+				instance().workerBuild.erase(unit);
+				return;
+			}
+
+			// If worker is in workerTask
+			if (instance().workerTask.find(unit) != instance().workerTask.end())
+			{
+				const auto aux = instance().workerTask[unit];
+
+				// If item is from BO, remove from ItemsInProgress and add to myBO
+
+				if (instance().itemsInProgress_.find(unit) != instance().itemsInProgress_.end())
+				{
+					BuildOrderManager::instance().myBo.itemsBO.insert(BuildOrderManager::instance().myBo.itemsBO.begin(), instance().itemsInProgress_[unit]);
+					instance().itemsInProgress_.erase(unit);
+				}
+				instance().workerTask.erase(unit);
+			}
+		}
+		else
+		{
+			// If unit dies while morphing/warping
+			if (instance().unitTransforming_.find(unit) != instance().unitTransforming_.end())
+			{
+				const auto aux = instance().unitTransforming_[unit];
+
+				// If item is from BO, remove from ItemsInProgress and add to myBO
+				if (instance().itemsInProgress_.find(unit) != instance().itemsInProgress_.end())
+				{
+					BuildOrderManager::instance().myBo.itemsBO.insert(BuildOrderManager::instance().myBo.itemsBO.begin(), instance().itemsInProgress_[unit]);
+					instance().itemsInProgress_.erase(unit);
+				}
+				instance().unitTransforming_.erase(unit);
+				return;
+			}
+
+			// We check if the unit that died is being built by an SCV
+			for (const auto task : instance().workerTask)
+			{
+				if (task.second == unit)
+				{
+					// If item is from BO, remove from ItemsInProgress and add to myBO
+					if (instance().itemsInProgress_.find(unit) != instance().itemsInProgress_.end())
+					{
+						BuildOrderManager::instance().myBo.itemsBO.insert(BuildOrderManager::instance().myBo.itemsBO.begin(), instance().itemsInProgress_[unit]);
+						instance().itemsInProgress_.erase(unit);
+					}
+					instance().workerTask.erase(unit);
+					break;
+				}
+			}
+		}
 	}
 
 	void BuildingManager::initTree()
@@ -115,6 +208,30 @@ namespace Jabbo
 		class ChooseType : public bt::Leaf
 		{
 		public:
+			static bool foundSupplyBeingBuilt()
+			{
+				switch (Broodwar->self()->getRace())
+				{
+				case Races::Zerg:
+					for (const auto item : TrainingManager::instance().unitQueue)
+					{
+						if (item.type == Broodwar->self()->getRace().getSupplyProvider())
+						{
+							return true;
+						}
+					}
+				default:
+					for (const auto item : instance().itemsInProgress_)
+					{
+						if (item.second.unit == Broodwar->self()->getRace().getSupplyProvider())
+						{
+							return true;
+						}
+					}
+				}
+				return false;
+			};
+
 			Status update() override
 			{
 				try
@@ -123,13 +240,19 @@ namespace Jabbo
 					instance().isFromBO_ = false;
 					if (!BuildOrderManager::instance().myBo.itemsBO.empty())
 					{
-						BOItem next = BuildOrderManager::instance().myBo.itemsBO[0];
+						auto next = BuildOrderManager::instance().myBo.itemsBO[0];
 
 						if (!next.unit.isBuilding())
 						{
+							if (Broodwar->self()->supplyTotal() / 2 - Broodwar->self()->supplyUsed() / 2 > 2 && Broodwar->self()->getRace() || foundSupplyBeingBuilt())
+							{
+								return Status::Failure;
+							}
+							const BOItem newItem = { Broodwar->self()->supplyUsed() / 2, Broodwar->self()->getRace().getSupplyProvider() };
+							BuildOrderManager::instance().myBo.itemsBO.insert(BuildOrderManager::instance().myBo.itemsBO.begin(), newItem);
 							return Status::Failure;
 						}
-						if (instance().iHaveMoney(next.unit) && Broodwar->self()->supplyUsed() / 2 >= next.supply)
+						else if (instance().iHaveMoney(next.unit) && Broodwar->self()->supplyUsed() / 2 >= next.supply)
 						{
 							instance().chosenType_ = next.unit;
 							instance().isFromBO_ = true;
@@ -158,7 +281,7 @@ namespace Jabbo
 							{
 								for (const auto transforming : instance().unitTransforming_)
 								{
-									if (transforming->getType() == Broodwar->self()->getRace().getSupplyProvider()) return Status::Failure;
+									if (transforming.first->getType() == Broodwar->self()->getRace().getSupplyProvider()) return Status::Failure;
 								}
 							}
 							instance().chosenType_ = Broodwar->self()->getRace().getSupplyProvider();
@@ -238,14 +361,16 @@ namespace Jabbo
 					if (chosenWorker)
 					{
 						RecollectManager::instance().workerIdle.erase(chosenWorker);
-						pair<UnitType, TilePosition> placeType = { instance().chosenType_, instance().chosenPosition_ };
-						instance().workerBuild.insert(pair<Unit, pair<UnitType, TilePosition>>(chosenWorker, placeType));
-						instance().buildingsResourcesQueue.emplace_back(instance().chosenType_);
+						buildInfo placeType = { instance().chosenType_, instance().chosenPosition_ , false };
 						if (instance().isFromBO_)
 						{
-							instance().itemsInProgress_.emplace_back(BuildOrderManager::instance().myBo.itemsBO[0]);
+							placeType.isFromBO = true;
+							instance().itemsInProgress_.insert(pair<Unit, BOItem>(chosenWorker, BuildOrderManager::instance().myBo.itemsBO[0]));
 							BuildOrderManager::instance().myBo.itemsBO.erase(BuildOrderManager::instance().myBo.itemsBO.begin());
 						}
+						instance().reserved_.insert(instance().chosenPosition_);
+						instance().workerBuild.insert(pair<Unit, buildInfo>(chosenWorker, placeType));
+						instance().buildingsResourcesQueue.emplace_back(instance().chosenType_);
 						chosenWorker->move(Position(instance().chosenPosition_));
 						return Status::Success;
 					}
@@ -284,14 +409,17 @@ namespace Jabbo
 					{
 						RecollectManager::instance().workerMineral.erase(chosenWorker);
 						ResourceManager::instance().minerals[mineral]--;
-						pair<UnitType, TilePosition> placeType = { instance().chosenType_, instance().chosenPosition_ };
-						instance().workerBuild.insert(pair<Unit, pair<UnitType, TilePosition>>(chosenWorker, placeType));
-						instance().buildingsResourcesQueue.emplace_back(instance().chosenType_);
+						buildInfo placeType = { instance().chosenType_, instance().chosenPosition_ ,false };
+
 						if (instance().isFromBO_)
 						{
-							instance().itemsInProgress_.emplace_back(BuildOrderManager::instance().myBo.itemsBO[0]);
+							placeType.isFromBO = true;
+							instance().itemsInProgress_.insert(pair<Unit, BOItem>(chosenWorker, BuildOrderManager::instance().myBo.itemsBO[0]));
 							BuildOrderManager::instance().myBo.itemsBO.erase(BuildOrderManager::instance().myBo.itemsBO.begin());
 						}
+						instance().reserved_.insert(instance().chosenPosition_);
+						instance().workerBuild.insert(pair<Unit, buildInfo>(chosenWorker, placeType));
+						instance().buildingsResourcesQueue.emplace_back(instance().chosenType_);
 						chosenWorker->move(Position(instance().chosenPosition_));
 						return Status::Success;
 					}
@@ -327,9 +455,9 @@ namespace Jabbo
 			{
 				continue;
 			}
-			if (Broodwar->isVisible(builder.second.second))
+			if (Broodwar->isVisible(builder.second.pos))
 			{
-				builder.first->build(builder.second.first, builder.second.second);
+				builder.first->build(builder.second.type, builder.second.pos);
 			}
 		}
 		instance().buildingTree_.update();

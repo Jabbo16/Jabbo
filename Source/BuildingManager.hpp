@@ -9,13 +9,19 @@ namespace Jabbo {
 	using namespace std;
 	class BuildingManager
 	{
+		struct buildInfo
+		{
+			UnitType type = UnitTypes::Unknown;
+			TilePosition pos = TilePositions::Unknown;
+			bool isFromBO = false;
+		};
 		class ChoosePlace : public bt::Leaf {};
 		class ChooseType : public bt::Leaf {};
 		TilePosition chosenPosition_;
-		vector< BOItem > itemsInProgress_; // TODO remove item when its completed/created
+		map<Unit, BOItem > itemsInProgress_;
 		UnitType chosenType_ = UnitTypes::Unknown;
 		bool isFromBO_ = false;
-		set<Unit> unitTransforming_;
+		map<Unit, buildInfo> unitTransforming_;
 		set<TilePosition> reserved_;
 		static bool iHaveMoney(const UnitType& unit);
 		bt::BehaviorTree buildingTree_;
@@ -23,7 +29,7 @@ namespace Jabbo {
 	public:
 		BuildingManager();
 
-		map < Unit, pair<UnitType, TilePosition >> workerBuild;
+		map < Unit, buildInfo> workerBuild;
 		map <Unit, Unit> workerTask;
 		list<UnitType> buildingsResourcesQueue;
 		static TilePosition chooseGeyser();
@@ -31,7 +37,7 @@ namespace Jabbo {
 		static BuildingManager & instance();
 		static void onUnitCreate(Unit);
 		static void onUnitComplete(Unit);
-		static void onUnitDestroy(Unit); // TODO implement method
+		static void onUnitDestroy(Unit);
 		static void initTree();
 	};
 }

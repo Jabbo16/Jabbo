@@ -19,7 +19,7 @@ namespace Jabbo {
 	public:
 		TrainingManager();
 		vector<unitItemQueue> unitQueue{};
-		static TrainingManager & Instance();
+		static TrainingManager & instance();
 		static bool iHaveMoney(const UnitType & unit);
 		void updateScoring();
 		void updateProtossUnitScore(UnitType unit, int count);

@@ -49,7 +49,7 @@ namespace Jabbo {
 		{
 			string text = "Builder";
 			drawTextUnit(m.first->getPosition(), text);
-			drawBoxUnit(m.second.second, m.second.first, Colors::Yellow);
+			drawBoxUnit(m.second.pos, m.second.type, Colors::Yellow);
 		}
 
 		for (const auto m : BuildingManager::instance().workerTask)

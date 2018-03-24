@@ -1,4 +1,5 @@
 #include "ResourceManager.hpp"
+#include "RecollectManager.hpp"
 
 using namespace BWAPI;
 namespace Jabbo {
@@ -10,8 +11,32 @@ namespace Jabbo {
 		static ResourceManager instance;
 		return instance;
 	}
-	void ResourceManager::onUnitDestroy(const BWAPI::Unit unit)
+	void ResourceManager::onMineralDestroy(const Unit unit)
 	{
+		for (auto base : BaseManager::instance().bases)
+		{
+			if (base.minerals.find(unit) != base.minerals.end())
+			{
+				base.minerals.erase(unit);
+				if (base.owner == Ally)
+				{
+					instance().minerals.erase(unit);
+					for (auto mineral = RecollectManager::instance().workerMineral.begin(); mineral != RecollectManager::instance().workerMineral.end();)
+					{
+						if (mineral->second == unit)
+						{
+							RecollectManager::instance().workerIdle.insert(mineral->first);
+							mineral->first->stop();
+							mineral = RecollectManager::instance().workerMineral.erase(mineral);
+						}
+						else
+						{
+							++mineral;
+						}
+					}
+				}
+			}
+		}
 	}
 
 	void ResourceManager::initBaseResources()
