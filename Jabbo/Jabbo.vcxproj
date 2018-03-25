@@ -70,7 +70,7 @@
       <SubSystem>Windows</SubSystem>
       <ImportLibrary>$(IntDir)$(TargetName).lib</ImportLibrary>
       <TargetMachine>MachineX86</TargetMachine>
-      <AdditionalDependencies>lib/BWAPId.lib;lib/UnitInfo.lib</AdditionalDependencies>
+      <AdditionalDependencies>lib/BWAPId.lib;lib/UnitInfod.lib</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>copy Release\Jabbo.dll C:\TM\Starcraft\bwapi-data\AI</Command>
