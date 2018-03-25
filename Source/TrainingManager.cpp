@@ -205,7 +205,7 @@ namespace Jabbo {
 						{
 							b.first->train(next.unit);
 							const auto frame = next.unit.buildTime() + Broodwar->getFrameCount();
-							instance().unitQueue.emplace_back(unitItemQueue{ b.first, next.unit, frame, true });
+							instance().unitQueue.emplace_back(UnitItemQueue{ b.first, next.unit, frame, true });
 							BuildOrderManager::instance().myBo.itemsBO.erase(BuildOrderManager::instance().myBo.itemsBO.begin());
 							return;
 						}
@@ -242,13 +242,13 @@ namespace Jabbo {
 		{
 			building->train(highestType);
 			auto const frame = highestType.buildTime() + Broodwar->getFrameCount();
-			instance().unitQueue.emplace_back(unitItemQueue{ building, highestType, frame, false });
+			instance().unitQueue.emplace_back(UnitItemQueue{ building, highestType, frame, false });
 			// TODO Remove Item from queue at onCreate() or onComplete() and OnDestroy()
 		}
 	}
-	bool TrainingManager::hasUnitTypeRequirement(BWAPI::UnitType unit_type)
+	bool TrainingManager::hasUnitTypeRequirement(UnitType unitType)
 	{
-		auto requirements = unit_type.requiredUnits();
+		auto requirements = unitType.requiredUnits();
 		for (const auto requirement : requirements)
 		{
 			bool found = false;

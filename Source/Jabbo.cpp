@@ -16,8 +16,7 @@ void JabboModule::onStart()
 {
 	bwem.Initialize();
 	bwem.EnableAutomaticPathAnalysis();
-	auto startingLocationsOK = bwem.FindBasesForStartingLocations();
-	assert(startingLocationsOK);
+	bwem.FindBasesForStartingLocations();
 	MapPrinter::Initialize(&bwem);
 
 	mapBweb.onStart();
@@ -25,7 +24,6 @@ void JabboModule::onStart()
 	//	mapBweb.findFullWall(wall);
 	mapBweb.findBlocks();
 	UnitInfoManager::getInstance().onStart();
-	Unit firstCC = nullptr;
 	Broodwar->enableFlag(Flag::UserInput);
 	//	Broodwar->setLocalSpeed(0);
 	//	Broodwar->setFrameSkip(1000);
@@ -33,8 +31,7 @@ void JabboModule::onStart()
 	ResourceManager::initBaseResources();
 	RecollectManager::initTree();
 	BuildingManager::initTree();
-	// Set the command optimization level so that common commands can be grouped
-	// and reduce the bot's APM (Actions Per Minute).
+	// Set the command optimization level so that common commands can be grouped and reduce the bot's APM (Actions Per Minute).
 	Broodwar->setCommandOptimizationLevel(2);
 }
 
@@ -159,7 +156,6 @@ void JabboModule::onUnitDestroy(const BWAPI::Unit unit)
 		if (unit->getType().isWorker())
 		{
 			RecollectManager::onUnitDestroy(unit);
-			return;
 		}
 
 		BuildingManager::onUnitDestroy(unit);

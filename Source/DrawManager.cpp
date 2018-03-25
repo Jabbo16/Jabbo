@@ -91,8 +91,8 @@ namespace Jabbo {
 
 	void DrawManager::drawBoxUnit(const TilePosition top, const UnitType type, const Color color)
 	{
-		const Position leftTop = Position(top.x * 32, top.y * 32);
-		const Position rightBottom = Position(leftTop.x + 32 + type.tileWidth(), leftTop.y + 32 + type.tileHeight());
+		const auto leftTop = Position(top.x * 32, top.y * 32);
+		const auto rightBottom = Position(leftTop.x + 32 + type.tileWidth(), leftTop.y + 32 + type.tileHeight());
 		Broodwar->drawBoxMap(leftTop, rightBottom, color);
 	}
 }

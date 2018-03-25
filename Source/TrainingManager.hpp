@@ -5,7 +5,7 @@
 namespace Jabbo {
 	using namespace BWAPI;
 	using namespace std;
-	struct unitItemQueue
+	struct UnitItemQueue
 	{
 		Unit building = nullptr;
 		UnitType type = UnitTypes::Unknown;
@@ -18,7 +18,7 @@ namespace Jabbo {
 		map <UnitType, double>& getUnitScore() { return unitScore; }
 	public:
 		TrainingManager();
-		vector<unitItemQueue> unitQueue{};
+		vector<UnitItemQueue> unitQueue{};
 		static TrainingManager & instance();
 		static bool iHaveMoney(const UnitType & unit);
 		void updateScoring();

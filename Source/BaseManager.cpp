@@ -5,6 +5,19 @@ namespace Jabbo
 	BaseManager::BaseManager()
 		= default;
 
+	int BaseManager::getFriendlyBasesCount()
+	{
+		auto cont = 0;
+		for (const auto base : instance().bases)
+		{
+			if (base.owner == Ally)
+			{
+				cont++;
+			}
+		}
+		return cont;
+	}
+
 	void BaseManager::initBaseManager()
 	{
 		for (const auto &area : bwem.Areas())

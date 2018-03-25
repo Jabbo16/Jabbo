@@ -7,9 +7,9 @@ namespace Jabbo {
 	{
 	public:
 		static void onFrame();
-		static void drawUnit(const Unit& unit, const Color color);
+		static void drawUnit(const Unit& unit, Color color);
 		static void drawTextUnit(Position pos, string& text);
-		static void drawBoxUnit(const TilePosition top, const UnitType type, Color color);
+		static void drawBoxUnit(TilePosition top, UnitType type, Color color);
 		DrawManager();
 		static DrawManager & instance();
 	};

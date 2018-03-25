@@ -133,6 +133,7 @@
     <ClCompile Include="Source\ResourceManager.cpp" />
     <ClCompile Include="Source\RecollectManager.cpp" />
     <ClCompile Include="Source\TrainingManager.cpp" />
+    <ClCompile Include="Source\UnitManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\BaseManager.hpp" />
@@ -168,6 +169,7 @@
     <ClInclude Include="Source\ResourceManager.hpp" />
     <ClInclude Include="Source\RecollectManager.hpp" />
     <ClInclude Include="Source\TrainingManager.hpp" />
+    <ClInclude Include="Source\UnitManager.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

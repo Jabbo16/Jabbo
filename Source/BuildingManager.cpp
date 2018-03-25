@@ -4,6 +4,7 @@
 #include "BaseManager.hpp"
 #include "ResourceManager.hpp"
 #include "TrainingManager.hpp"
+#include "UnitManager.hpp"
 
 namespace
 {
@@ -16,8 +17,8 @@ namespace Jabbo
 
 	bool BuildingManager::iHaveMoney(const UnitType& unit)
 	{
-		int myMinerals = Broodwar->self()->minerals();
-		int myGas = Broodwar->self()->gas();
+		auto myMinerals = Broodwar->self()->minerals();
+		auto myGas = Broodwar->self()->gas();
 		for (auto queue : instance().buildingsResourcesQueue)
 		{
 			myMinerals -= queue.mineralPrice();
@@ -34,7 +35,7 @@ namespace Jabbo
 			{
 				continue;
 			}
-			for (auto g : base.geysers)
+			for (const auto g : base.geysers)
 			{
 				if (!g.second)
 				{
@@ -98,7 +99,7 @@ namespace Jabbo
 			if (instance().workerTask.find(unit) != instance().workerTask.end())
 			{
 				RecollectManager::instance().workerIdle.insert(instance().workerTask[unit]);
-				// TODO insertar en lista de edificios
+				// TODO add to buildings list Terran
 				if (instance().itemsInProgress_.find(unit) != instance().itemsInProgress_.end())
 				{
 					instance().itemsInProgress_.erase(unit);
@@ -110,7 +111,7 @@ namespace Jabbo
 		{
 			if (instance().unitTransforming_.find(unit) != instance().unitTransforming_.end())
 			{
-				// TODO insertar en lista de edificios
+				// TODO add to buildings list Zerg/Protoss
 				if (instance().unitTransforming_[unit].isFromBO)
 				{
 					instance().itemsInProgress_.erase(unit);
@@ -143,7 +144,7 @@ namespace Jabbo
 				instance().reserved_.erase(aux.pos);
 				for (auto it = instance().buildingsResourcesQueue.begin(); it != instance().buildingsResourcesQueue.end(); ++it)
 				{
-					if ((*it) == aux.type)
+					if (*it == aux.type)
 					{
 						instance().buildingsResourcesQueue.erase(it);
 						break;
@@ -152,40 +153,7 @@ namespace Jabbo
 				instance().workerBuild.erase(unit);
 				return;
 			}
-
 			// If worker is in workerTask
-			if (instance().workerTask.find(unit) != instance().workerTask.end())
-			{
-				const auto aux = instance().workerTask[unit];
-
-				// If item is from BO, remove from ItemsInProgress and add to myBO
-
-				if (instance().itemsInProgress_.find(unit) != instance().itemsInProgress_.end())
-				{
-					BuildOrderManager::instance().myBo.itemsBO.insert(BuildOrderManager::instance().myBo.itemsBO.begin(), instance().itemsInProgress_[unit]);
-					instance().itemsInProgress_.erase(unit);
-				}
-				instance().workerTask.erase(unit);
-			}
-		}
-		else
-		{
-			// If unit dies while morphing/warping
-			if (instance().unitTransforming_.find(unit) != instance().unitTransforming_.end())
-			{
-				const auto aux = instance().unitTransforming_[unit];
-
-				// If item is from BO, remove from ItemsInProgress and add to myBO
-				if (instance().itemsInProgress_.find(unit) != instance().itemsInProgress_.end())
-				{
-					BuildOrderManager::instance().myBo.itemsBO.insert(BuildOrderManager::instance().myBo.itemsBO.begin(), instance().itemsInProgress_[unit]);
-					instance().itemsInProgress_.erase(unit);
-				}
-				instance().unitTransforming_.erase(unit);
-				return;
-			}
-
-			// We check if the unit that died is being built by an SCV
 			for (const auto task : instance().workerTask)
 			{
 				if (task.second == unit)
@@ -197,8 +165,40 @@ namespace Jabbo
 						instance().itemsInProgress_.erase(unit);
 					}
 					instance().workerTask.erase(unit);
-					break;
+					return;
 				}
+			}
+		}
+		// Building died
+		else
+		{
+			// If unit dies while morphing/warping
+			if (instance().unitTransforming_.find(unit) != instance().unitTransforming_.end())
+			{
+				const auto aux = instance().unitTransforming_[unit];
+				if (aux.isFromBO)
+				{
+					// If item is from BO, remove from ItemsInProgress and add to myBO
+					if (instance().itemsInProgress_.find(unit) != instance().itemsInProgress_.end())
+					{
+						BuildOrderManager::instance().myBo.itemsBO.insert(BuildOrderManager::instance().myBo.itemsBO.begin(), instance().itemsInProgress_[unit]);
+						instance().itemsInProgress_.erase(unit);
+					}
+				}
+				instance().unitTransforming_.erase(unit);
+				return;
+			}
+
+			// We check if the unit being built was in workerTask
+			if (instance().workerTask.find(unit) != instance().workerTask.end())
+			{
+				// If item is from BO, remove from ItemsInProgress and add to myBO
+				if (instance().itemsInProgress_.find(unit) != instance().itemsInProgress_.end())
+				{
+					BuildOrderManager::instance().myBo.itemsBO.insert(BuildOrderManager::instance().myBo.itemsBO.begin(), instance().itemsInProgress_[unit]);
+					instance().itemsInProgress_.erase(unit);
+				}
+				instance().workerTask.erase(unit);
 			}
 		}
 	}
@@ -244,7 +244,7 @@ namespace Jabbo
 
 						if (!next.unit.isBuilding())
 						{
-							if (Broodwar->self()->supplyTotal() / 2 - Broodwar->self()->supplyUsed() / 2 > 2 && Broodwar->self()->getRace() || foundSupplyBeingBuilt())
+							if ((Broodwar->self()->supplyTotal() / 2 - Broodwar->self()->supplyUsed() / 2 > 2 && Broodwar->self()->getRace()) || foundSupplyBeingBuilt())
 							{
 								return Status::Failure;
 							}
@@ -252,7 +252,7 @@ namespace Jabbo
 							BuildOrderManager::instance().myBo.itemsBO.insert(BuildOrderManager::instance().myBo.itemsBO.begin(), newItem);
 							return Status::Failure;
 						}
-						else if (instance().iHaveMoney(next.unit) && Broodwar->self()->supplyUsed() / 2 >= next.supply)
+						if (instance().iHaveMoney(next.unit) && Broodwar->self()->supplyUsed() / 2 >= next.supply)
 						{
 							instance().chosenType_ = next.unit;
 							instance().isFromBO_ = true;
@@ -260,6 +260,7 @@ namespace Jabbo
 					}
 					else
 					{
+						// Supply no Zerg
 						if (Broodwar->self()->supplyTotal() / 2 - Broodwar->self()->supplyUsed() / 2 <= 2 && Broodwar->self()->getRace() != Races::Zerg)
 						{
 							if (!instance().iHaveMoney(Broodwar->self()->getRace().getSupplyProvider()))
@@ -285,6 +286,29 @@ namespace Jabbo
 								}
 							}
 							instance().chosenType_ = Broodwar->self()->getRace().getSupplyProvider();
+						}
+						else
+						{
+							switch (Broodwar->self()->getRace())
+							{
+							case Races::Protoss:
+								// Gateways
+								if (UnitManager::getNumberUnits(UnitTypes::Protoss_Gateway) < BaseManager::getFriendlyBasesCount() * 3 && iHaveMoney(UnitTypes::Protoss_Gateway))
+								{
+									instance().chosenType_ = UnitTypes::Protoss_Gateway;
+									break;
+								}
+								// TODO Add more different buildings based on EnemyInfo and wanted units to train
+							case Races::Terran:
+								// Barracks
+								if (UnitManager::getNumberUnits(UnitTypes::Terran_Barracks) < BaseManager::getFriendlyBasesCount() * 3 && iHaveMoney(UnitTypes::Terran_Barracks))
+								{
+									instance().chosenType_ = UnitTypes::Terran_Barracks;
+									break;
+								}
+								// TODO Add more different buildings based on EnemyInfo and wanted units to train
+							// TODO Zerg logic
+							}
 						}
 					}
 					if (instance().chosenType_ != UnitTypes::Unknown)
