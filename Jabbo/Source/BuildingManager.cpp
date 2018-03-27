@@ -61,12 +61,12 @@ namespace Jabbo
 			{
 				if (Broodwar->self()->getRace() == Races::Terran)
 				{
-					instance().workerTask.insert(pair<Unit, Unit>{unit, builder.first});
+					instance().workerTask.emplace(pair<Unit, Unit>{unit, builder.first});
 				}
 				else
 				{
-					instance().unitTransforming_.insert(pair<Unit, buildInfo>(unit, builder.second));
-					RecollectManager::instance().workerIdle.insert(builder.first);
+					instance().unitTransforming_.emplace(pair<Unit, buildInfo>(unit, builder.second));
+					RecollectManager::instance().workerIdle.emplace(builder.first);
 				}
 				for (const auto type : instance().buildingsResourcesQueue)
 				{
@@ -78,7 +78,7 @@ namespace Jabbo
 				}
 				if (builder.second.isFromBO)
 				{
-					instance().itemsInProgress_.insert(pair<Unit, BOItem>(unit, instance().itemsInProgress_[builder.first]));
+					instance().itemsInProgress_.emplace(pair<Unit, BOItem>(unit, instance().itemsInProgress_[builder.first]));
 					instance().itemsInProgress_.erase(builder.first);
 				}
 				instance().reserved_.erase(builder.second.pos);
@@ -92,13 +92,13 @@ namespace Jabbo
 	{
 		if (unit->getType().isRefinery())
 		{
-			ResourceManager::instance().gas.insert(std::pair<Unit, int>(unit, 0));
+			ResourceManager::instance().gas.emplace(std::pair<Unit, int>(unit, 0));
 		}
 		if (Broodwar->self()->getRace() == Races::Terran)
 		{
 			if (instance().workerTask.find(unit) != instance().workerTask.end())
 			{
-				RecollectManager::instance().workerIdle.insert(instance().workerTask[unit]);
+				RecollectManager::instance().workerIdle.emplace(instance().workerTask[unit]);
 				// TODO add to buildings list Terran
 				if (instance().itemsInProgress_.find(unit) != instance().itemsInProgress_.end())
 				{
@@ -136,7 +136,7 @@ namespace Jabbo
 				{
 					if (instance().itemsInProgress_.find(unit) != instance().itemsInProgress_.end())
 					{
-						BuildOrderManager::instance().myBo.itemsBO.insert(BuildOrderManager::instance().myBo.itemsBO.begin(), instance().itemsInProgress_[unit]);
+						BuildOrderManager::instance().myBo.itemsBO.emplace(BuildOrderManager::instance().myBo.itemsBO.begin(), instance().itemsInProgress_[unit]);
 						instance().itemsInProgress_.erase(unit);
 					}
 				}
@@ -161,7 +161,7 @@ namespace Jabbo
 					// If item is from BO, remove from ItemsInProgress and add to myBO
 					if (instance().itemsInProgress_.find(unit) != instance().itemsInProgress_.end())
 					{
-						BuildOrderManager::instance().myBo.itemsBO.insert(BuildOrderManager::instance().myBo.itemsBO.begin(), instance().itemsInProgress_[unit]);
+						BuildOrderManager::instance().myBo.itemsBO.emplace(BuildOrderManager::instance().myBo.itemsBO.begin(), instance().itemsInProgress_[unit]);
 						instance().itemsInProgress_.erase(unit);
 					}
 					instance().workerTask.erase(unit);
@@ -181,7 +181,7 @@ namespace Jabbo
 					// If item is from BO, remove from ItemsInProgress and add to myBO
 					if (instance().itemsInProgress_.find(unit) != instance().itemsInProgress_.end())
 					{
-						BuildOrderManager::instance().myBo.itemsBO.insert(BuildOrderManager::instance().myBo.itemsBO.begin(), instance().itemsInProgress_[unit]);
+						BuildOrderManager::instance().myBo.itemsBO.emplace(BuildOrderManager::instance().myBo.itemsBO.begin(), instance().itemsInProgress_[unit]);
 						instance().itemsInProgress_.erase(unit);
 					}
 				}
@@ -195,7 +195,7 @@ namespace Jabbo
 				// If item is from BO, remove from ItemsInProgress and add to myBO
 				if (instance().itemsInProgress_.find(unit) != instance().itemsInProgress_.end())
 				{
-					BuildOrderManager::instance().myBo.itemsBO.insert(BuildOrderManager::instance().myBo.itemsBO.begin(), instance().itemsInProgress_[unit]);
+					BuildOrderManager::instance().myBo.itemsBO.emplace(BuildOrderManager::instance().myBo.itemsBO.begin(), instance().itemsInProgress_[unit]);
 					instance().itemsInProgress_.erase(unit);
 				}
 				instance().workerTask.erase(unit);
@@ -249,7 +249,7 @@ namespace Jabbo
 								return Status::Failure;
 							}
 							const BOItem newItem = { Broodwar->self()->supplyUsed() / 2, Broodwar->self()->getRace().getSupplyProvider() };
-							BuildOrderManager::instance().myBo.itemsBO.insert(BuildOrderManager::instance().myBo.itemsBO.begin(), newItem);
+							BuildOrderManager::instance().myBo.itemsBO.emplace(BuildOrderManager::instance().myBo.itemsBO.begin(), newItem);
 							return Status::Failure;
 						}
 						if (instance().iHaveMoney(next.unit) && Broodwar->self()->supplyUsed() / 2 >= next.supply)
@@ -389,11 +389,11 @@ namespace Jabbo
 						if (instance().isFromBO_)
 						{
 							placeType.isFromBO = true;
-							instance().itemsInProgress_.insert(pair<Unit, BOItem>(chosenWorker, BuildOrderManager::instance().myBo.itemsBO[0]));
+							instance().itemsInProgress_.emplace(pair<Unit, BOItem>(chosenWorker, BuildOrderManager::instance().myBo.itemsBO[0]));
 							BuildOrderManager::instance().myBo.itemsBO.erase(BuildOrderManager::instance().myBo.itemsBO.begin());
 						}
-						instance().reserved_.insert(instance().chosenPosition_);
-						instance().workerBuild.insert(pair<Unit, buildInfo>(chosenWorker, placeType));
+						instance().reserved_.emplace(instance().chosenPosition_);
+						instance().workerBuild.emplace(pair<Unit, buildInfo>(chosenWorker, placeType));
 						instance().buildingsResourcesQueue.emplace_back(instance().chosenType_);
 						chosenWorker->move(Position(instance().chosenPosition_));
 						return Status::Success;
@@ -438,11 +438,11 @@ namespace Jabbo
 						if (instance().isFromBO_)
 						{
 							placeType.isFromBO = true;
-							instance().itemsInProgress_.insert(pair<Unit, BOItem>(chosenWorker, BuildOrderManager::instance().myBo.itemsBO[0]));
+							instance().itemsInProgress_.emplace(pair<Unit, BOItem>(chosenWorker, BuildOrderManager::instance().myBo.itemsBO[0]));
 							BuildOrderManager::instance().myBo.itemsBO.erase(BuildOrderManager::instance().myBo.itemsBO.begin());
 						}
-						instance().reserved_.insert(instance().chosenPosition_);
-						instance().workerBuild.insert(pair<Unit, buildInfo>(chosenWorker, placeType));
+						instance().reserved_.emplace(instance().chosenPosition_);
+						instance().workerBuild.emplace(pair<Unit, buildInfo>(chosenWorker, placeType));
 						instance().buildingsResourcesQueue.emplace_back(instance().chosenType_);
 						chosenWorker->move(Position(instance().chosenPosition_));
 						return Status::Success;

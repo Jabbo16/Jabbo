@@ -8,7 +8,7 @@ namespace Jabbo
 	int BaseManager::getFriendlyBasesCount()
 	{
 		auto cont = 0;
-		for (const auto base : instance().bases)
+		for (const auto &base : instance().bases)
 		{
 			if (base.owner == Ally)
 			{
@@ -24,6 +24,10 @@ namespace Jabbo
 		{
 			for (const auto &base : area.Bases())
 			{
+				if (base.Minerals().empty())
+				{
+					continue;
+				}
 				Base newBase;
 				for (auto& m : base.Minerals())
 				{
@@ -48,7 +52,7 @@ namespace Jabbo
 				{
 					newBase.starting = true;
 				}
-				instance().bases.insert(newBase);
+				instance().bases.emplace(newBase);
 			}
 		}
 		Broodwar->sendText("Found %d bases", instance().bases.size());

@@ -3,6 +3,7 @@
 #include "RecollectManager.hpp"
 #include "BuildingManager.hpp"
 #include "TrainingManager.hpp"
+#include "ScoutingManager.hpp"
 using namespace scutil;
 namespace Jabbo {
 	DrawManager::DrawManager()
@@ -61,6 +62,14 @@ namespace Jabbo {
 		for (const auto enemy : UnitInfoManager::getInstance().getUnitDataOfPlayer(Broodwar->enemy()).getUnits())
 		{
 			drawUnit(enemy.first, Colors::Red);
+		}
+
+		for (auto &scouter : ScoutingManager::instance().workerScouters)
+		{
+			if (scouter.currentObjective) drawBoxUnit(scouter.currentObjective->tile, Broodwar->enemy()->getRace().getResourceDepot(), Colors::Red);
+			string text = "Scouter";
+			drawUnit(scouter.myUnit, Colors::Blue);
+			drawTextUnit(scouter.myUnit->getPosition(), text);
 		}
 
 		// Display the game frame rate as text in the upper left area of the screen

@@ -2,6 +2,8 @@
 #include "BuildingManager.hpp"
 #include "DrawManager.hpp"
 #include "RecollectManager.hpp"
+#include "Agents/WorkerScouterAgent.hpp"
+#include "ScoutingManager.hpp"
 using namespace BWAPI;
 using namespace scutil;
 using namespace Filter;
@@ -11,7 +13,7 @@ using namespace BWEM::utils;
 
 namespace { auto & mapBweb = BWEB::Map::Instance(); }
 using namespace Jabbo;
-
+bool scouting = false;
 void JabboModule::onStart()
 {
 	bwem.Initialize();
@@ -58,6 +60,11 @@ void JabboModule::onFrame()
 
 	// activates the onFrame of UnitInfoManager
 	UnitInfoManager::getInstance().onFrame();
+	if (!ScoutingManager::instance().initialScoutingDone && Broodwar->self()->supplyUsed() / 2 >= 9)
+	{
+		ScoutingManager::firstScouting();
+	}
+	ScoutingManager::onFrame();
 	BuildingManager::onFrame();
 	RecollectManager::onFrame();
 	TrainingManager::onFrame();
@@ -156,6 +163,7 @@ void JabboModule::onUnitDestroy(const BWAPI::Unit unit)
 		if (unit->getType().isWorker())
 		{
 			RecollectManager::onUnitDestroy(unit);
+			ScoutingManager::onUnitDestroy(unit);
 		}
 
 		BuildingManager::onUnitDestroy(unit);

@@ -107,6 +107,7 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Agents\workerScouterAgent.cpp" />
     <ClCompile Include="Source\BaseManager.cpp" />
     <ClCompile Include="Source\BuildingManager.cpp" />
     <ClCompile Include="Source\BuildOrderManager.cpp" />
@@ -140,8 +141,10 @@
     <ClCompile Include="Source\RecollectManager.cpp" />
     <ClCompile Include="Source\TrainingManager.cpp" />
     <ClCompile Include="Source\UnitManager.cpp" />
+    <ClCompile Include="Source\ScoutingManager.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Agents\WorkerScouterAgent.hpp" />
     <ClInclude Include="Source\BaseManager.hpp" />
     <ClInclude Include="Source\BrainTree.h" />
     <ClInclude Include="Source\BuildingManager.hpp" />
@@ -176,6 +179,7 @@
     <ClInclude Include="Source\RecollectManager.hpp" />
     <ClInclude Include="Source\TrainingManager.hpp" />
     <ClInclude Include="Source\UnitManager.hpp" />
+    <ClInclude Include="Source\ScoutingManager.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

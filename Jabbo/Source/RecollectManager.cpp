@@ -69,7 +69,7 @@ namespace Jabbo {
 							if (closestMineral)
 							{
 								ResourceManager::instance().minerals[closestMineral]++;
-								instance().workerMineral.insert(pair<Unit, Unit>{instance().chosenWorker, closestMineral});
+								instance().workerMineral.emplace(pair<Unit, Unit>{instance().chosenWorker, closestMineral});
 								instance().workerIdle.erase(instance().chosenWorker);
 								instance().chosenWorker->gather(closestMineral);
 								instance().chosenWorker = nullptr;
@@ -116,7 +116,7 @@ namespace Jabbo {
 							if (chosenRefinery)
 							{
 								ResourceManager::instance().gas[chosenRefinery]++;
-								instance().workerGas.insert(pair<Unit, Unit>{instance().chosenWorker, chosenRefinery});
+								instance().workerGas.emplace(pair<Unit, Unit>{instance().chosenWorker, chosenRefinery});
 								instance().workerIdle.erase(instance().chosenWorker);
 								instance().chosenWorker->gather(chosenRefinery);
 								instance().chosenWorker = nullptr;

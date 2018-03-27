@@ -14,8 +14,8 @@ namespace Jabbo {
 	};
 	class TrainingManager
 	{
-		map <UnitType, double> unitScore;
-		map <UnitType, double>& getUnitScore() { return unitScore; }
+		map <UnitType, double> unitScore_;
+		map <UnitType, double>& getUnitScore() { return unitScore_; }
 	public:
 		TrainingManager();
 		vector<UnitItemQueue> unitQueue{};
@@ -24,6 +24,6 @@ namespace Jabbo {
 		void updateScoring();
 		void updateProtossUnitScore(UnitType unit, int count);
 		static void onFrame();
-		static bool hasUnitTypeRequirement(BWAPI::UnitType unit_type);
+		static bool hasUnitTypeRequirement(UnitType unitType);
 	};
 }
