@@ -2,8 +2,8 @@
 
 #include <BWAPI.h>
 #include <set>
-#include "BrainTree.h"
-namespace bt = BrainTree;
+#include "BrainTree/BrainTree.h"
+namespace BT = BrainTree;
 
 namespace Jabbo {
 	using namespace BWAPI;
@@ -11,7 +11,7 @@ namespace Jabbo {
 
 	class RecollectManager
 	{
-		bt::BehaviorTree recollectionTree_;
+		BT::BehaviorTree recollectionTree_{};
 	public:
 		// Left->Worker , Right->Resource
 		map<Unit, Unit> workerMineral{};

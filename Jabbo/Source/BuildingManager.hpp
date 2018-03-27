@@ -2,8 +2,9 @@
 #include <BWAPI.h>
 #include "BWEB/BWEB.h"
 #include "BuildOrderManager.hpp"
-#include "BrainTree.h"
-namespace bt = BrainTree;
+#include "BrainTree/BrainTree.h"
+namespace BT = BrainTree;
+
 namespace Jabbo {
 	using namespace BWAPI;
 	using namespace std;
@@ -15,23 +16,23 @@ namespace Jabbo {
 			TilePosition pos = TilePositions::Unknown;
 			bool isFromBO = false;
 		};
-		class ChoosePlace : public bt::Leaf {};
-		class ChooseType : public bt::Leaf {};
+		class ChoosePlace : public BT::Leaf {};
+		class ChooseType : public BT::Leaf {};
 		TilePosition chosenPosition_;
-		map<Unit, BOItem > itemsInProgress_;
+		map<Unit, BOItem > itemsInProgress_{};
 		UnitType chosenType_ = UnitTypes::Unknown;
 		bool isFromBO_ = false;
-		map<Unit, buildInfo> unitTransforming_;
-		set<TilePosition> reserved_;
+		map<Unit, buildInfo> unitTransforming_{};
+		set<TilePosition> reserved_{};
 		static bool iHaveMoney(const UnitType& unit);
-		bt::BehaviorTree buildingTree_;
+		BT::BehaviorTree buildingTree_{};
 
 	public:
 		BuildingManager();
 
-		map < Unit, buildInfo> workerBuild;
-		map <Unit, Unit> workerTask;
-		list<UnitType> buildingsResourcesQueue;
+		map < Unit, buildInfo> workerBuild{};
+		map <Unit, Unit> workerTask{};
+		list<UnitType> buildingsResourcesQueue{};
 		static TilePosition chooseGeyser();
 		static void onFrame();
 		static BuildingManager & instance();

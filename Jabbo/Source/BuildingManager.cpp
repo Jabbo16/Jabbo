@@ -205,7 +205,7 @@ namespace Jabbo
 
 	void BuildingManager::initTree()
 	{
-		class ChooseType : public bt::Leaf
+		class ChooseType : public BT::Leaf
 		{
 		public:
 			static bool foundSupplyBeingBuilt()
@@ -324,7 +324,7 @@ namespace Jabbo
 				}
 			}
 		};
-		class ChoosePlace : public bt::Leaf
+		class ChoosePlace : public BT::Leaf
 		{
 		public:
 			Status update() override
@@ -362,7 +362,7 @@ namespace Jabbo
 				}
 			}
 		};
-		class ChooseIdle : public bt::Leaf
+		class ChooseIdle : public BT::Leaf
 		{
 		public:
 			Status update() override
@@ -407,7 +407,7 @@ namespace Jabbo
 				}
 			}
 		};
-		class ChooseMiner : public bt::Leaf
+		class ChooseMiner : public BT::Leaf
 		{
 		public:
 			Status update() override
@@ -457,8 +457,8 @@ namespace Jabbo
 			}
 		};
 		// create a sequence
-		auto build = std::make_shared<bt::Sequence>();
-		auto chooseWorker = std::make_shared<bt::Selector>();
+		auto build = std::make_shared<BT::Sequence>();
+		auto chooseWorker = std::make_shared<BT::Selector>();
 		const auto chooseTypeBuilding = std::make_shared<ChooseType>();
 		const auto choosePlace = std::make_shared<ChoosePlace>();
 		const auto chooseIdleWorker = std::make_shared<ChooseIdle>();

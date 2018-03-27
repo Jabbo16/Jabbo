@@ -13,7 +13,7 @@ namespace Jabbo {
 
 	void RecollectManager::initTree()
 	{
-		class ChooseWorker : public bt::Leaf
+		class ChooseWorker : public BT::Leaf
 		{
 		public:
 			Status update() override
@@ -39,7 +39,7 @@ namespace Jabbo {
 			}
 		};
 
-		class gatherMineral : public bt::Leaf
+		class GatherMineral : public BT::Leaf
 		{
 		public:
 			Status update() override
@@ -88,7 +88,7 @@ namespace Jabbo {
 			}
 		};
 
-		class gatherGas : public bt::Leaf
+		class GatherGas : public BT::Leaf
 		{
 		public:
 			Status update() override
@@ -135,11 +135,11 @@ namespace Jabbo {
 		};
 
 		// create a sequence
-		auto gather = std::make_shared<bt::Sequence>();
-		auto chooseMineralOrGeyser = std::make_shared<bt::Selector>();
+		auto gather = std::make_shared<BT::Sequence>();
+		auto chooseMineralOrGeyser = std::make_shared<BT::Selector>();
 		const auto chooseWorkerGather = std::make_shared<ChooseWorker>();
-		const auto gatherGeyser = std::make_shared<gatherGas>();
-		const auto gatherMinerals = std::make_shared<gatherMineral>();
+		const auto gatherGeyser = std::make_shared<GatherGas>();
+		const auto gatherMinerals = std::make_shared<GatherMineral>();
 		gather->addChild(chooseWorkerGather);
 		chooseMineralOrGeyser->addChild(gatherGeyser);
 		chooseMineralOrGeyser->addChild(gatherMinerals);
