@@ -4,14 +4,13 @@
 #include "../../include/UnitData.h"
 
 #include <set>
-#include <UnitInfoManager.h>
 
 namespace Neolib {
 	struct FastAPproximation {
-		struct FAPUnit {
+		struct FAPUnit {  // NOLINT
 			explicit FAPUnit(BWAPI::Unit u);
 			explicit FAPUnit(scutil::UnitInfo ed);
-			const FAPUnit &operator=(const FAPUnit &other) const;
+			const FAPUnit &operator=(const FAPUnit &other) const;  // NOLINT
 
 			int id = 0;
 
@@ -26,7 +25,7 @@ namespace Neolib {
 			mutable int maxShields = 0;
 
 			mutable double speed = 0;
-			mutable bool flying = 0;
+			mutable bool flying = false;
 			mutable int elevation = -1;
 
 			mutable BWAPI::UnitSizeType unitSize;
@@ -114,7 +113,7 @@ namespace Neolib {
 	private:
 		std::vector<FAPUnit> player1, player2;
 
-		bool didSomething = false;
+		bool didSomething_ = false;
 		static void dealDamage(const FAPUnit &fu, int damage, BWAPI::DamageType damageType);
 		static int distButNotReally(const FAPUnit &u1, const FAPUnit &u2);
 		static bool isSuicideUnit(BWAPI::UnitType ut);

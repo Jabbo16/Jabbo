@@ -1,4 +1,5 @@
 #include "FAP.h"
+#include <UnitInfoManager.h>
 #define MAX(a, b) (((a) < (b) ? (b) : (a)))
 Neolib::FastAPproximation fap;
 
@@ -27,11 +28,11 @@ namespace Neolib {
 			if (player1.empty() || player2.empty())
 				break;
 
-			didSomething = false;
+			didSomething_ = false;
 
 			isimulate();
 
-			if (!didSomething)
+			if (!didSomething_)
 				break;
 		}
 	}
@@ -135,7 +136,7 @@ namespace Neolib {
 
 	void FastAPproximation::unitsim(const FAPUnit &fu, std::vector<FAPUnit> &enemyUnits) {
 		if (fu.attackCooldownRemaining) {
-			didSomething = true;
+			didSomething_ = true;
 			return;
 		}
 
@@ -172,7 +173,7 @@ namespace Neolib {
 			fu.y = closestEnemy->y;
 			closestDist = 0;
 
-			didSomething = true;
+			didSomething_ = true;
 		}
 
 		if (closestEnemy != enemyUnits.end() &&
@@ -196,7 +197,7 @@ namespace Neolib {
 				unitDeath(temp, enemyUnits);
 			}
 
-			didSomething = true;
+			didSomething_ = true;
 		}
 		else if (closestEnemy != enemyUnits.end() && sqrt(closestDist) > fu.speed) {
 			auto const dx = closestEnemy->x - fu.x;
@@ -205,7 +206,7 @@ namespace Neolib {
 			fu.x += static_cast<int>(dx * (fu.speed / sqrt(dx * dx + dy * dy)));
 			fu.y += static_cast<int>(dy * (fu.speed / sqrt(dx * dx + dy * dy)));
 
-			didSomething = true;
+			didSomething_ = true;
 		}
 	}
 
@@ -276,7 +277,7 @@ namespace Neolib {
 				unitDeath(temp, enemyUnits);
 			}
 
-			didSomething = true;
+			didSomething_ = true;
 			return true;
 		}
 		else if (closestEnemy != enemyUnits.end() && sqrt(closestDist) > fu.speed) {
@@ -286,7 +287,7 @@ namespace Neolib {
 			fu.x += static_cast<int>(dx * (fu.speed / sqrt(dx * dx + dy * dy)));
 			fu.y += static_cast<int>(dy * (fu.speed / sqrt(dx * dx + dy * dy)));
 
-			didSomething = true;
+			didSomething_ = true;
 		}
 
 		return false;
