@@ -3,18 +3,24 @@
 #include <BWAPI.h>
 #include <set>
 #include"BWEM 1.4.1/src/bwem.h"
-namespace { auto & bwem = BWEM::Map::Instance(); }
 
 namespace Jabbo {
 	using namespace BWAPI;
 	using namespace std;
 	using namespace BWEM;
 
-	enum owner
+	enum team
 	{
 		Ally, Enemy, Neutral
 	};
-	inline const char* toString(const owner v)
+
+	struct Owner
+	{
+		team team = Neutral;
+		Player player = Broodwar->neutral();
+	};
+
+	inline const char* toString(const team v) // TODO Finish change to struct owner, fix other classes
 	{
 		switch (v)
 		{
@@ -31,8 +37,8 @@ namespace Jabbo {
 		TilePosition tile{};
 		set<Unit> minerals{};
 		map<Unit, bool> geysers{};
-		const BWEM::Area * area{};
-		owner owner = Neutral;
+		const Area * area{};
+		Owner owner{};
 		bool starting = false;
 
 		bool operator<(const Base &cBase) const {

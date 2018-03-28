@@ -18,7 +18,7 @@ namespace Jabbo {
 			if (base.minerals.find(unit) != base.minerals.end())
 			{
 				base.minerals.erase(unit);
-				if (base.owner == Ally)
+				if (base.owner.player == Broodwar->self())
 				{
 					instance().minerals.erase(unit);
 					for (auto mineral = RecollectManager::instance().workerMineral.begin(); mineral != RecollectManager::instance().workerMineral.end();)
@@ -43,7 +43,7 @@ namespace Jabbo {
 	{
 		for (auto &base : BaseManager::instance().bases)
 		{
-			if (base.owner == Ally)
+			if (base.owner.player == Broodwar->self())
 			{
 				for (auto &m : base.minerals)
 				{

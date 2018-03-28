@@ -107,7 +107,7 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Source\Agents\workerScouterAgent.cpp" />
+    <ClCompile Include="Source\Agents\WorkerScouterAgent.cpp" />
     <ClCompile Include="Source\BaseManager.cpp" />
     <ClCompile Include="Source\BuildingManager.cpp" />
     <ClCompile Include="Source\BuildOrderManager.cpp" />
@@ -120,6 +120,7 @@
     <ClCompile Include="Source\Dll.cpp" />
     <ClCompile Include="Source\DrawManager.cpp" />
     <ClCompile Include="Source\FAP\FAP.cpp" />
+    <ClCompile Include="Source\InfoManager.cpp" />
     <ClCompile Include="Source\Jabbo.cpp" />
     <ClCompile Include="Source\BWEM 1.4.1\EasyBMP_1.06\EasyBMP.cpp" />
     <ClCompile Include="Source\BWEM 1.4.1\src\area.cpp" />
@@ -158,6 +159,7 @@
     <ClInclude Include="Source\BWEB\Wall.h" />
     <ClInclude Include="Source\DrawManager.hpp" />
     <ClInclude Include="Source\FAP\FAP.h" />
+    <ClInclude Include="Source\InfoManager.hpp" />
     <ClInclude Include="Source\Jabbo.hpp" />
     <ClInclude Include="Source\BWEM 1.4.1\EasyBMP_1.06\EasyBMP.h" />
     <ClInclude Include="Source\BWEM 1.4.1\src\area.h" />

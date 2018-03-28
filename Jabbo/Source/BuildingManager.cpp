@@ -31,7 +31,7 @@ namespace Jabbo
 	{
 		for (auto base : BaseManager::instance().bases)
 		{
-			if (base.owner != Ally || base.geysers.empty())
+			if (base.owner.player != Broodwar->self() || base.geysers.empty())
 			{
 				continue;
 			}
