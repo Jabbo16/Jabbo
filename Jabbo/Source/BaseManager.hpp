@@ -54,7 +54,7 @@ namespace Jabbo {
 	public:
 		set<Base> bases;
 		BaseManager();
-		static int getFriendlyBasesCount();
+		static int getFriendlyBasesCount(bool mineOnly);
 		static void initBaseManager();
 		static BaseManager & instance();
 	};

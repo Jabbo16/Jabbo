@@ -6,10 +6,7 @@
 #include "TrainingManager.hpp"
 #include "UnitManager.hpp"
 
-namespace
-{
-	auto& mapBweb = BWEB::Map::Instance();
-}
+namespace { auto& mapBweb = BWEB::Map::Instance(); }
 
 namespace Jabbo
 {
@@ -293,7 +290,7 @@ namespace Jabbo
 							{
 							case Races::Protoss:
 								// Gateways
-								if (UnitManager::getNumberUnits(UnitTypes::Protoss_Gateway) < BaseManager::getFriendlyBasesCount() * 3 && iHaveMoney(UnitTypes::Protoss_Gateway))
+								if (UnitManager::getNumberUnits(UnitTypes::Protoss_Gateway) < BaseManager::getFriendlyBasesCount(true) * 3 && iHaveMoney(UnitTypes::Protoss_Gateway))
 								{
 									instance().chosenType_ = UnitTypes::Protoss_Gateway;
 									break;
@@ -301,7 +298,7 @@ namespace Jabbo
 								// TODO Add more different buildings based on EnemyInfo and wanted units to train
 							case Races::Terran:
 								// Barracks
-								if (UnitManager::getNumberUnits(UnitTypes::Terran_Barracks) < BaseManager::getFriendlyBasesCount() * 3 && iHaveMoney(UnitTypes::Terran_Barracks))
+								if (UnitManager::getNumberUnits(UnitTypes::Terran_Barracks) < BaseManager::getFriendlyBasesCount(true) * 3 && iHaveMoney(UnitTypes::Terran_Barracks))
 								{
 									instance().chosenType_ = UnitTypes::Terran_Barracks;
 									break;

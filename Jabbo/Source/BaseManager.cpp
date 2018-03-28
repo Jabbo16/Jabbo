@@ -1,4 +1,5 @@
 #include "BaseManager.hpp"
+#include "InfoManager.hpp"
 
 namespace { auto & bwem = BWEM::Map::Instance(); }
 namespace Jabbo
@@ -6,11 +7,15 @@ namespace Jabbo
 	BaseManager::BaseManager()
 		= default;
 
-	int BaseManager::getFriendlyBasesCount()
+	int BaseManager::getFriendlyBasesCount(const bool mineOnly)
 	{
 		auto cont = 0;
 		for (const auto &base : instance().bases)
 		{
+			if (mineOnly && base.owner.player != Broodwar->self())
+			{
+				continue;
+			}
 			if (base.owner.team == Ally)
 			{
 				cont++;
@@ -40,19 +45,21 @@ namespace Jabbo
 				}
 				newBase.area = base.GetArea();
 				newBase.base = &base;
-				if (base.Location() == Broodwar->self()->getStartLocation())
-				{
-					newBase.owner = { Ally, Broodwar->self() }; // TODO add players properly (allied)
-				}
-				else
-				{
-					newBase.owner = { Neutral, Broodwar->neutral() };
-				}
 				newBase.tile = base.Location();
 				if (base.Starting())
 				{
 					newBase.starting = true;
 				}
+				if (base.Location() == Broodwar->self()->getStartLocation())
+				{
+					newBase.owner = { Ally, Broodwar->self() }; // TODO add players properly (allied)
+					InfoManager::instance().mainBase.emplace(newBase);
+				}
+				else
+				{
+					newBase.owner = { Neutral, Broodwar->neutral() };
+				}
+
 				instance().bases.emplace(newBase);
 			}
 		}

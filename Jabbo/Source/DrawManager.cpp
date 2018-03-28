@@ -2,8 +2,8 @@
 #include "ResourceManager.hpp"
 #include "RecollectManager.hpp"
 #include "BuildingManager.hpp"
-#include "TrainingManager.hpp"
 #include "ScoutingManager.hpp"
+#include "InfoManager.hpp"
 using namespace scutil;
 namespace Jabbo {
 	DrawManager::DrawManager()
@@ -72,6 +72,23 @@ namespace Jabbo {
 			drawTextUnit(scouter.myUnit->getPosition(), text);
 		}
 
+		if (InfoManager::instance().mainBase)
+		{
+			Broodwar->drawTextMap(Position(InfoManager::instance().mainBase->tile), "MainBase");
+		}
+
+		if (InfoManager::instance().mainNaturalBase)
+		{
+			Broodwar->drawTextMap(Position(InfoManager::instance().mainNaturalBase->tile), "MainNaturalBase");
+		}
+		if (InfoManager::instance().naturalChoke)
+		{
+			Broodwar->drawTextMap(Position(InfoManager::instance().naturalChoke.value()), "NaturalChoke");
+		}
+		if (InfoManager::instance().mainChoke)
+		{
+			Broodwar->drawTextMap(Position(InfoManager::instance().mainChoke.value()), "MainChoke");
+		}
 		// Display the game frame rate as text in the upper left area of the screen
 		Broodwar->drawTextScreen(200, 0, "FPS: %d", Broodwar->getFPS());
 		Broodwar->drawTextScreen(200, 20, "Average FPS: %f", Broodwar->getAverageFPS());
@@ -79,8 +96,8 @@ namespace Jabbo {
 
 		if (!BuildOrderManager::instance().myBo.itemsBO.empty())
 		{
-			Broodwar->drawTextScreen(200, 40, "Next Item in BO Queue: %s",
-				BuildOrderManager::instance().myBo.itemsBO[0].unit.getName().c_str());
+			Broodwar->drawTextScreen(200, 40, "Next Item in BO Queue: %s at %d supply",
+				BuildOrderManager::instance().myBo.itemsBO[0].unit.getName().c_str(), BuildOrderManager::instance().myBo.itemsBO[0].supply);
 		}
 		else
 		{

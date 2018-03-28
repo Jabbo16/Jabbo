@@ -4,13 +4,14 @@
 #include "RecollectManager.hpp"
 #include "Agents/WorkerScouterAgent.hpp"
 #include "ScoutingManager.hpp"
+#include "InfoManager.hpp"
 using namespace BWAPI;
 using namespace scutil;
 using namespace Filter;
 using namespace BWEM;
-using namespace BWEM::BWAPI_ext;
-using namespace BWEM::utils;
-
+using namespace BWAPI_ext;
+using namespace utils;
+namespace { auto & bwem = Map::Instance(); }
 namespace { auto & mapBweb = BWEB::Map::Instance(); }
 using namespace Jabbo;
 bool scouting = false;
@@ -30,6 +31,7 @@ void JabboModule::onStart()
 	//	Broodwar->setLocalSpeed(0);
 	//	Broodwar->setFrameSkip(1000);
 	BaseManager::initBaseManager();
+	InfoManager::onStart();
 	ResourceManager::initBaseResources();
 	RecollectManager::initTree();
 	BuildingManager::initTree();

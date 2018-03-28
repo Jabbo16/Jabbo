@@ -9,11 +9,11 @@ namespace Jabbo
 		for (auto &scouter : instance().workerScouters)
 		{
 			scouter.run();
-			if (scouter.basesToExplore.empty() && !scouter.currentObjective)
-			{
-				onUnitDestroy(scouter.myUnit);
-				RecollectManager::instance().workerIdle.insert(scouter.myUnit);
-			}
+			//			if (scouter.basesToExplore.empty() && !scouter.currentObjective)
+			//			{
+			//				onUnitDestroy(scouter.myUnit);
+			//				RecollectManager::instance().workerIdle.insert(scouter.myUnit);
+			//			}
 		}
 	}
 

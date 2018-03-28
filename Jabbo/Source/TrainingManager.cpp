@@ -181,7 +181,7 @@ namespace Jabbo {
 					case Races::Zerg:
 						for (auto uLarva : u.first->getLarva())
 						{
-							u.first->train(UnitTypes::Zerg_Drone);
+							uLarva->morph(UnitTypes::Zerg_Drone);
 						}
 					case Races::Protoss:
 						u.first->train(UnitTypes::Protoss_Probe);
@@ -193,7 +193,7 @@ namespace Jabbo {
 
 		if (!BuildOrderManager::instance().myBo.itemsBO.empty())
 		{
-			BOItem next = BuildOrderManager::instance().myBo.itemsBO[0];
+			auto next = BuildOrderManager::instance().myBo.itemsBO[0];
 
 			if (!next.unit.isBuilding())
 			{
