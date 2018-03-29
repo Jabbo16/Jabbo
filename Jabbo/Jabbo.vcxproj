@@ -100,7 +100,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <ImportLibrary>$(IntDir)$(TargetName).lib</ImportLibrary>
       <TargetMachine>MachineX86</TargetMachine>
-      <AdditionalDependencies>lib/BWAPI.lib;%(AdditionalDependencies);lib/UnitInfo.lib</AdditionalDependencies>
+      <AdditionalDependencies>lib/BWAPI.lib;lib/BWTA.lib;%(AdditionalDependencies);lib/UnitInfo.lib</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>copy Release\Jabbo.dll C:\TM\Starcraft\bwapi-data\AI</Command>
@@ -139,8 +139,10 @@
     <ClCompile Include="Source\BWEM 1.4.1\src\tiles.cpp" />
     <ClCompile Include="Source\BWEM 1.4.1\src\utils.cpp" />
     <ClCompile Include="Source\BWEM 1.4.1\src\winutils.cpp" />
+    <ClCompile Include="Source\MapManager.cpp" />
     <ClCompile Include="Source\ResourceManager.cpp" />
     <ClCompile Include="Source\RecollectManager.cpp" />
+    <ClCompile Include="Source\SimulationManager.cpp" />
     <ClCompile Include="Source\TrainingManager.cpp" />
     <ClCompile Include="Source\UnitManager.cpp" />
     <ClCompile Include="Source\ScoutingManager.cpp" />
@@ -179,8 +181,10 @@
     <ClInclude Include="Source\BWEM 1.4.1\src\tiles.h" />
     <ClInclude Include="Source\BWEM 1.4.1\src\utils.h" />
     <ClInclude Include="Source\BWEM 1.4.1\src\winutils.h" />
+    <ClInclude Include="Source\MapManager.hpp" />
     <ClInclude Include="Source\ResourceManager.hpp" />
     <ClInclude Include="Source\RecollectManager.hpp" />
+    <ClInclude Include="Source\SimulationManager.hpp" />
     <ClInclude Include="Source\TrainingManager.hpp" />
     <ClInclude Include="Source\UnitManager.hpp" />
     <ClInclude Include="Source\ScoutingManager.hpp" />

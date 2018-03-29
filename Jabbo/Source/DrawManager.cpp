@@ -67,6 +67,7 @@ namespace Jabbo {
 		for (auto &scouter : ScoutingManager::instance().workerScouters)
 		{
 			if (scouter.currentObjective) drawBoxUnit(scouter.currentObjective->tile, Broodwar->enemy()->getRace().getResourceDepot(), Colors::Red);
+			if (scouter.baseToHarass) drawTextUnit(scouter.myUnit->getPosition() + Position(0, 10), toString(scouter.harassStatus));
 			string text = "Scouter";
 			drawUnit(scouter.myUnit, Colors::Blue);
 			drawTextUnit(scouter.myUnit->getPosition(), text);
