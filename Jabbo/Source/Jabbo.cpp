@@ -30,7 +30,7 @@ void JabboModule::onStart()
 	mapBweb.findBlocks();
 	UnitInfoManager::getInstance().onStart();
 	Broodwar->enableFlag(Flag::UserInput);
-	//	Broodwar->setLocalSpeed(0);
+	Broodwar->setLocalSpeed(1);
 	//	Broodwar->setFrameSkip(1000);
 	BaseManager::initBaseManager();
 	InfoManager::onStart();

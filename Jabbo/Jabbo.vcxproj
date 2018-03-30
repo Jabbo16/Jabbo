@@ -119,6 +119,7 @@
     <ClCompile Include="Source\BWEB\Wall.cpp" />
     <ClCompile Include="Source\Dll.cpp" />
     <ClCompile Include="Source\DrawManager.cpp" />
+    <ClCompile Include="Source\EconManager.cpp" />
     <ClCompile Include="Source\FAP\FAP.cpp" />
     <ClCompile Include="Source\InfoManager.cpp" />
     <ClCompile Include="Source\Jabbo.cpp" />
@@ -160,6 +161,7 @@
     <ClInclude Include="Source\BWEB\Station.h" />
     <ClInclude Include="Source\BWEB\Wall.h" />
     <ClInclude Include="Source\DrawManager.hpp" />
+    <ClInclude Include="Source\EconManager.hpp" />
     <ClInclude Include="Source\FAP\FAP.h" />
     <ClInclude Include="Source\InfoManager.hpp" />
     <ClInclude Include="Source\Jabbo.hpp" />

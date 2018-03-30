@@ -1,5 +1,8 @@
 #include "WorkerScouterAgent.hpp"
 #include "../InfoManager.hpp"
+#include <BWTA.h>
+#include "../SimulationManager.hpp"
+#include "../MapManager.hpp"
 
 namespace Jabbo
 {
@@ -22,6 +25,45 @@ namespace Jabbo
 		myUnit = unit;
 		basesToExplore = initScouter(allBases);
 		task = Scouting;
+	}
+
+	void WorkerScouterAgent::getNewHarassTask() const
+	{
+		// Checking atackers
+		this->attackers.clear();
+		for (auto u : InfoManager::getUnits(this->baseToHarass->owner.player)) {
+			if (u.second.type.isBuilding() || !u.second.type.canAttack())
+			{
+				continue;
+			}
+
+			const auto target = u.first->getTarget() == nullptr ? u.first->getOrderTarget() : u.first->getTarget();
+			if (target && target == this->myUnit) {
+				this->attackers.emplace(u.second);
+			}
+		}
+		if (this->attackers.empty())
+		{
+			if (BWTA::getRegion(this->myUnit->getPosition()) != BWTA::getRegion(this->baseToHarass->tile))
+			{
+				this->harassStatus = None;
+				return;
+			}
+			if (!Broodwar->isVisible(this->baseToHarass->tile))
+			{
+				this->harassStatus = None;
+				return;
+			}
+			this->harassStatus = AttackingWorker;
+			return;
+		}
+		const auto win = SimulationManager::simulateHarass(this->attackers, this->myUnit, 85);
+		if (win)
+		{
+			this->harassStatus = AttackingWorker;
+			return;
+		}
+		this->harassStatus = Fleeing;
 	}
 
 	void WorkerScouterAgent::run() const
@@ -72,19 +114,47 @@ namespace Jabbo
 			}
 			break;
 		case Harassing:
-			if (!unitToHarass || !unitToHarass->exists())
+			getNewHarassTask();
+			switch (harassStatus)
 			{
-				const auto workerToAttack = enemyWorkerToHarass();
-				if (workerToAttack)
+			case None:
+				myUnit->move(Position(baseToHarass->tile));
+				fleePosition = Positions::None;
+				unitToHarass = nullptr;
+
+			case Fleeing:
+			{
+				const auto newFleePosition = MapManager::getKitePosition(attackers, myUnit);
+				if (newFleePosition == Positions::None)
 				{
-					if (unitToHarass != workerToAttack)
+					fleePosition = Positions::None;
+					myUnit->move(Position(baseToHarass->tile));
+					unitToHarass = nullptr;
+				}
+				else if (fleePosition != newFleePosition)
+				{
+					fleePosition = newFleePosition;
+					myUnit->move(fleePosition);
+					unitToHarass = nullptr;
+				}
+				break;
+			}
+			case AttackingWorker:
+				if (!unitToHarass || !unitToHarass->exists())
+				{
+					const auto workerToAttack = enemyWorkerToHarass();
+					if (workerToAttack)
 					{
-						Broodwar->sendText("ATTACK MODE ACTIVATED!");
-						myUnit->attack(workerToAttack);
-						unitToHarass = workerToAttack;
+						if (unitToHarass != workerToAttack)
+						{
+							myUnit->attack(workerToAttack);
+							unitToHarass = workerToAttack;
+						}
 					}
 				}
+				break;
 			}
+
 			break;
 		}
 	}
@@ -104,25 +174,48 @@ namespace Jabbo
 			}
 
 			Unit enemyWorker = nullptr;
-			auto maxDist = 500;    // ignore any beyond this range
+			auto lowLife = 99999;    // ignore any beyond this range
+			auto const maxDist = 500;
+			// Failing that, find the enemy worker with lowest hp left
 
-								   // Failing that, find the enemy worker closest to the depot/base tile.
-
-			for (const auto unit : Broodwar->enemy()->getUnits())
+			for (const auto unit : InfoManager::getUnits(baseToHarass->owner.player))
 			{
-				if (unit->getType().isWorker())
+				if (unit.second.type.isWorker())
 				{
-					const auto dist = unit->getDistance(Position(baseToHarass->tile));
-
-					if (dist < maxDist)
+					if (unit.first->getDistance(Position(baseToHarass->tile)) > maxDist)
 					{
-						maxDist = dist;
-						enemyWorker = unit;
+						continue;
+					}
+					const auto life = unit.second.lastHealth + unit.second.lastShields;
+
+					if (life < lowLife)
+					{
+						lowLife = life;
+						enemyWorker = unit.first;
 					}
 				}
 			}
 			return enemyWorker;
 		}
 		return nullptr;
+	}
+
+	// Choose an enemy worker to harass, or none.
+	Unit WorkerScouterAgent::getClosestThreat() const
+	{
+		Unit threat = nullptr;
+		auto dist = 99999;
+		// Failing that, find the enemy worker with lowest hp left
+
+		for (const auto unit : InfoManager::getUnits(baseToHarass->owner.player))
+		{
+			const auto newDist = myUnit->getDistance(unit.second.lastPosition);
+			if (!threat || newDist < dist)
+			{
+				dist = newDist;
+				threat = unit.first;
+			}
+		}
+		return threat;
 	}
 }

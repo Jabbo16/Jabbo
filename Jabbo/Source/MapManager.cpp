@@ -12,13 +12,13 @@ namespace Jabbo {
 		return instance;
 	}
 
-	std::pair<double, double> operator +(const std::pair<int, int>& x, const std::pair<double, double>& y) {
+	std::pair<double, double> operator +(const std::pair<double, double>& x, const std::pair<double, double>& y) {
 		return std::make_pair(x.first + y.first, x.second + y.second);
 	}
 
 	pair<double, double> MapManager::sumPosition(const vector<pair<double, double>>& vectors)
 	{
-		pair<double, double> sum{ 0,0 };
+		pair<double, double> sum{};
 		for (const auto vector : vectors)
 		{
 			sum = sum + vector;
@@ -44,11 +44,11 @@ namespace Jabbo {
 			if (distance < minDistance) {
 				minDistance = distance;
 			}
-			unitV.first = (1 / distance) * unitV.first;
-			unitV.second = (1 / distance) * unitV.second;
+			unitV.first = (1.0 / distance) * unitV.first;
+			unitV.second = (1.0 / distance) * unitV.second;
 			vectors.emplace_back(unitV);
 		}
-		minDistance = 2 * minDistance * minDistance;
+		minDistance = 2.0 * minDistance * minDistance;
 		for (auto &vector : vectors) {
 			vector.first *= minDistance;
 			vector.second *= minDistance;

@@ -4,6 +4,7 @@
 #include "BuildingManager.hpp"
 #include "ScoutingManager.hpp"
 #include "InfoManager.hpp"
+#include "EconManager.hpp"
 using namespace scutil;
 namespace Jabbo {
 	DrawManager::DrawManager()
@@ -49,7 +50,9 @@ namespace Jabbo {
 		for (const auto m : BuildingManager::instance().workerBuild)
 		{
 			string text = "Builder";
+			string textType = m.second.type.c_str();
 			drawTextUnit(m.first->getPosition(), text);
+			drawTextUnit(Position(m.second.pos), textType);
 			drawBoxUnit(m.second.pos, m.second.type, Colors::Yellow);
 		}
 
@@ -94,7 +97,7 @@ namespace Jabbo {
 		Broodwar->drawTextScreen(200, 0, "FPS: %d", Broodwar->getFPS());
 		Broodwar->drawTextScreen(200, 20, "Average FPS: %f", Broodwar->getAverageFPS());
 		Broodwar->drawTextScreen(200, 60, "%s", Broodwar->getLastError().c_str());
-
+		Broodwar->drawTextScreen(200, 80, "MGPF: %f", EconManager::mineralGainPerFrame());
 		if (!BuildOrderManager::instance().myBo.itemsBO.empty())
 		{
 			Broodwar->drawTextScreen(200, 40, "Next Item in BO Queue: %s at %d supply",

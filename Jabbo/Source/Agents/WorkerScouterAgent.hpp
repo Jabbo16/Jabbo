@@ -64,5 +64,6 @@ namespace Jabbo {
 		void getNewHarassTask() const;
 		void run() const;
 		Unit enemyWorkerToHarass() const;
+		Unit getClosestThreat() const;
 	};
 }

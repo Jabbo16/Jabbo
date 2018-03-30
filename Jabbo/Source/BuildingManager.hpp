@@ -10,7 +10,7 @@ namespace Jabbo {
 	using namespace std;
 	class BuildingManager
 	{
-		struct buildInfo
+		struct BuildInfo
 		{
 			UnitType type = UnitTypes::Unknown;
 			TilePosition pos = TilePositions::Unknown;
@@ -22,7 +22,7 @@ namespace Jabbo {
 		map<Unit, BOItem > itemsInProgress_{};
 		UnitType chosenType_ = UnitTypes::Unknown;
 		bool isFromBO_ = false;
-		map<Unit, buildInfo> unitTransforming_{};
+		map<Unit, BuildInfo> unitTransforming_{};
 		set<TilePosition> reserved_{};
 		static bool iHaveMoney(const UnitType& unit);
 		BT::BehaviorTree buildingTree_{};
@@ -30,7 +30,7 @@ namespace Jabbo {
 	public:
 		BuildingManager();
 
-		map < Unit, buildInfo> workerBuild{};
+		map < Unit, BuildInfo> workerBuild{};
 		map <Unit, Unit> workerTask{};
 		list<UnitType> buildingsResourcesQueue{};
 		static TilePosition chooseGeyser();

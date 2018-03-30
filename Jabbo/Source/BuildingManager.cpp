@@ -5,6 +5,8 @@
 #include "ResourceManager.hpp"
 #include "TrainingManager.hpp"
 #include "UnitManager.hpp"
+#include "InfoManager.hpp"
+#include <BWTA.h>
 
 namespace { auto& mapBweb = BWEB::Map::Instance(); }
 
@@ -62,7 +64,7 @@ namespace Jabbo
 				}
 				else
 				{
-					instance().unitTransforming_.emplace(pair<Unit, buildInfo>(unit, builder.second));
+					instance().unitTransforming_.emplace(pair<Unit, BuildInfo>(unit, builder.second));
 					RecollectManager::instance().workerIdle.emplace(builder.first);
 				}
 				for (const auto type : instance().buildingsResourcesQueue)
@@ -295,6 +297,7 @@ namespace Jabbo
 									instance().chosenType_ = UnitTypes::Protoss_Gateway;
 									break;
 								}
+								break;
 								// TODO Add more different buildings based on EnemyInfo and wanted units to train
 							case Races::Terran:
 								// Barracks
@@ -303,6 +306,7 @@ namespace Jabbo
 									instance().chosenType_ = UnitTypes::Terran_Barracks;
 									break;
 								}
+								break;
 								// TODO Add more different buildings based on EnemyInfo and wanted units to train
 							// TODO Zerg logic
 							}
@@ -382,7 +386,7 @@ namespace Jabbo
 					if (chosenWorker)
 					{
 						RecollectManager::instance().workerIdle.erase(chosenWorker);
-						buildInfo placeType = { instance().chosenType_, instance().chosenPosition_ , false };
+						BuildInfo placeType = { instance().chosenType_, instance().chosenPosition_ , false };
 						if (instance().isFromBO_)
 						{
 							placeType.isFromBO = true;
@@ -390,7 +394,7 @@ namespace Jabbo
 							BuildOrderManager::instance().myBo.itemsBO.erase(BuildOrderManager::instance().myBo.itemsBO.begin());
 						}
 						instance().reserved_.emplace(instance().chosenPosition_);
-						instance().workerBuild.emplace(pair<Unit, buildInfo>(chosenWorker, placeType));
+						instance().workerBuild.emplace(pair<Unit, BuildInfo>(chosenWorker, placeType));
 						instance().buildingsResourcesQueue.emplace_back(instance().chosenType_);
 						chosenWorker->move(Position(instance().chosenPosition_));
 						return Status::Success;
@@ -430,7 +434,7 @@ namespace Jabbo
 					{
 						RecollectManager::instance().workerMineral.erase(chosenWorker);
 						ResourceManager::instance().minerals[mineral]--;
-						buildInfo placeType = { instance().chosenType_, instance().chosenPosition_ ,false };
+						BuildInfo placeType = { instance().chosenType_, instance().chosenPosition_ ,false };
 
 						if (instance().isFromBO_)
 						{
@@ -439,7 +443,7 @@ namespace Jabbo
 							BuildOrderManager::instance().myBo.itemsBO.erase(BuildOrderManager::instance().myBo.itemsBO.begin());
 						}
 						instance().reserved_.emplace(instance().chosenPosition_);
-						instance().workerBuild.emplace(pair<Unit, buildInfo>(chosenWorker, placeType));
+						instance().workerBuild.emplace(pair<Unit, BuildInfo>(chosenWorker, placeType));
 						instance().buildingsResourcesQueue.emplace_back(instance().chosenType_);
 						chosenWorker->move(Position(instance().chosenPosition_));
 						return Status::Success;
@@ -476,9 +480,23 @@ namespace Jabbo
 			{
 				continue;
 			}
-			if (Broodwar->isVisible(builder.second.pos))
+			if (Broodwar->isVisible(builder.second.pos) && Broodwar->canBuildHere(builder.second.pos, builder.second.type, builder.first))
 			{
 				builder.first->build(builder.second.type, builder.second.pos);
+			}
+			else
+			{
+				for (auto unit : Broodwar->getUnitsInRectangle(Position(builder.second.pos), Position(builder.second.pos + TilePosition(builder.second.type.tileWidth(), builder.second.type.tileHeight()))))
+				{
+					if (unit->getPlayer()->isEnemy(Broodwar->self()) || unit == builder.first)
+					{
+						continue;
+					}
+					if (unit->isIdle())
+					{
+						unit->attack(Position(InfoManager::instance().mainChoke.value()));
+					}
+				}
 			}
 		}
 		instance().buildingTree_.update();
