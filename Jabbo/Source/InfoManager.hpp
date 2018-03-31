@@ -13,8 +13,9 @@ namespace Jabbo {
 	public:
 		optional<Base> mainBase;
 		optional<Base> mainNaturalBase;
-		optional<TilePosition> mainChoke;
-		optional<TilePosition> naturalChoke;
+		optional<const ChokePoint*> mainChoke;
+		optional<const ChokePoint*> naturalChoke;
+		Race myRace = Races::Unknown;
 		static Base getBaseFromTile(TilePosition tile);
 		static void onStart();
 		InfoManager();

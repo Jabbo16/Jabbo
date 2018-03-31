@@ -1,10 +1,10 @@
 #pragma once
-
 #include <BWAPI.h>
 #include <set>
 #include "../BaseManager.hpp"
 #include <optional>
 #include "../include/UnitData.h"
+
 namespace Jabbo {
 	using namespace BWAPI;
 	using namespace std;

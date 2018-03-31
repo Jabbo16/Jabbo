@@ -5,7 +5,9 @@
 #include "Agents/WorkerScouterAgent.hpp"
 #include "ScoutingManager.hpp"
 #include "InfoManager.hpp"
-#include <BWTA.h>
+#include "ResourceManager.hpp"
+#include "TrainingManager.hpp"
+#include "BWEB/BWEB.h"
 using namespace BWAPI;
 using namespace scutil;
 using namespace Filter;
@@ -18,7 +20,6 @@ using namespace Jabbo;
 bool scouting = false;
 void JabboModule::onStart()
 {
-	BWTA::analyze();
 	bwem.Initialize();
 	bwem.EnableAutomaticPathAnalysis();
 	bwem.FindBasesForStartingLocations();

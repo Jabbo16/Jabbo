@@ -5,7 +5,9 @@
 #include "ScoutingManager.hpp"
 #include "InfoManager.hpp"
 #include "EconManager.hpp"
+#include "BWEB/BWEB.h"
 using namespace scutil;
+namespace { auto& mapBweb = BWEB::Map::Instance(); }
 namespace Jabbo {
 	DrawManager::DrawManager()
 		= default;
@@ -18,9 +20,11 @@ namespace Jabbo {
 
 	void DrawManager::onFrame()
 	{
+		//		mapBweb.draw();
+
 		for (const auto m : ResourceManager::instance().minerals)
 		{
-			string text = to_string(m.second);
+			auto text = to_string(m.second);
 			drawTextUnit(m.first->getPosition(), text);
 		}
 
@@ -87,11 +91,11 @@ namespace Jabbo {
 		}
 		if (InfoManager::instance().naturalChoke)
 		{
-			Broodwar->drawTextMap(Position(InfoManager::instance().naturalChoke.value()), "NaturalChoke");
+			Broodwar->drawTextMap(Position(InfoManager::instance().naturalChoke.value()->Center()), "NaturalChoke");
 		}
 		if (InfoManager::instance().mainChoke)
 		{
-			Broodwar->drawTextMap(Position(InfoManager::instance().mainChoke.value()), "MainChoke");
+			Broodwar->drawTextMap(Position(InfoManager::instance().mainChoke.value()->Center()), "MainChoke");
 		}
 		// Display the game frame rate as text in the upper left area of the screen
 		Broodwar->drawTextScreen(200, 0, "FPS: %d", Broodwar->getFPS());
@@ -100,8 +104,13 @@ namespace Jabbo {
 		Broodwar->drawTextScreen(200, 80, "MGPF: %f", EconManager::mineralGainPerFrame());
 		if (!BuildOrderManager::instance().myBo.itemsBO.empty())
 		{
-			Broodwar->drawTextScreen(200, 40, "Next Item in BO Queue: %s at %d supply",
-				BuildOrderManager::instance().myBo.itemsBO[0].unit.getName().c_str(), BuildOrderManager::instance().myBo.itemsBO[0].supply);
+			if (std::holds_alternative<UnitType>(BuildOrderManager::instance().myBo.itemsBO[0].type)) Broodwar->drawTextScreen(200, 40, "Next Item in BO Queue: %s at %d supply",
+				std::get<UnitType>(BuildOrderManager::instance().myBo.itemsBO[0].type).getName().c_str(), BuildOrderManager::instance().myBo.itemsBO[0].supply);
+			else if (std::holds_alternative<TechType>(BuildOrderManager::instance().myBo.itemsBO[0].type)) Broodwar->drawTextScreen(200, 40, "Next Item in BO Queue: %s at %d supply",
+				std::get<TechType>(BuildOrderManager::instance().myBo.itemsBO[0].type).getName().c_str(), BuildOrderManager::instance().myBo.itemsBO[0].supply);
+
+			else if (std::holds_alternative<UpgradeType>(BuildOrderManager::instance().myBo.itemsBO[0].type)) Broodwar->drawTextScreen(200, 40, "Next Item in BO Queue: %s at %d supply",
+				std::get<UpgradeType>(BuildOrderManager::instance().myBo.itemsBO[0].type).getName().c_str(), BuildOrderManager::instance().myBo.itemsBO[0].supply);
 		}
 		else
 		{

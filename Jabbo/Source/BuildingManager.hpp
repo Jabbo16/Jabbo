@@ -1,6 +1,5 @@
 #pragma once
 #include <BWAPI.h>
-#include "BWEB/BWEB.h"
 #include "BuildOrderManager.hpp"
 #include "BrainTree/BrainTree.h"
 namespace BT = BrainTree;
@@ -23,8 +22,6 @@ namespace Jabbo {
 		UnitType chosenType_ = UnitTypes::Unknown;
 		bool isFromBO_ = false;
 		map<Unit, BuildInfo> unitTransforming_{};
-		set<TilePosition> reserved_{};
-		static bool iHaveMoney(const UnitType& unit);
 		BT::BehaviorTree buildingTree_{};
 
 	public:

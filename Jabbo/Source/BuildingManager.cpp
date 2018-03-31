@@ -6,25 +6,14 @@
 #include "TrainingManager.hpp"
 #include "UnitManager.hpp"
 #include "InfoManager.hpp"
-#include <BWTA.h>
+#include "EconManager.hpp"
+#include "BWEB/BWEB.h"
 
 namespace { auto& mapBweb = BWEB::Map::Instance(); }
 
 namespace Jabbo
 {
 	BuildingManager::BuildingManager() = default;
-
-	bool BuildingManager::iHaveMoney(const UnitType& unit)
-	{
-		auto myMinerals = Broodwar->self()->minerals();
-		auto myGas = Broodwar->self()->gas();
-		for (auto queue : instance().buildingsResourcesQueue)
-		{
-			myMinerals -= queue.mineralPrice();
-			myGas -= queue.gasPrice();
-		}
-		return myMinerals >= unit.mineralPrice() && myGas >= unit.gasPrice();
-	}
 
 	TilePosition BuildingManager::chooseGeyser()
 	{
@@ -58,7 +47,7 @@ namespace Jabbo
 		{
 			if (builder.second.type == unit->getType() && builder.second.pos == unit->getTilePosition())
 			{
-				if (Broodwar->self()->getRace() == Races::Terran)
+				if (InfoManager::instance().myRace == Races::Terran)
 				{
 					instance().workerTask.emplace(pair<Unit, Unit>{unit, builder.first});
 				}
@@ -80,7 +69,6 @@ namespace Jabbo
 					instance().itemsInProgress_.emplace(pair<Unit, BOItem>(unit, instance().itemsInProgress_[builder.first]));
 					instance().itemsInProgress_.erase(builder.first);
 				}
-				instance().reserved_.erase(builder.second.pos);
 				instance().workerBuild.erase(builder.first);
 				break;
 			}
@@ -93,7 +81,7 @@ namespace Jabbo
 		{
 			ResourceManager::instance().gas.emplace(std::pair<Unit, int>(unit, 0));
 		}
-		if (Broodwar->self()->getRace() == Races::Terran)
+		if (InfoManager::instance().myRace == Races::Terran)
 		{
 			if (instance().workerTask.find(unit) != instance().workerTask.end())
 			{
@@ -140,7 +128,7 @@ namespace Jabbo
 					}
 				}
 				// Remove reserved Tile and remove from reserved money buildings list
-				instance().reserved_.erase(aux.pos);
+				mapBweb.getUsedTiles().erase(aux.pos);
 				for (auto it = instance().buildingsResourcesQueue.begin(); it != instance().buildingsResourcesQueue.end(); ++it)
 				{
 					if (*it == aux.type)
@@ -149,6 +137,7 @@ namespace Jabbo
 						break;
 					}
 				}
+
 				instance().workerBuild.erase(unit);
 				return;
 			}
@@ -209,24 +198,30 @@ namespace Jabbo
 		public:
 			static bool foundSupplyBeingBuilt()
 			{
-				switch (Broodwar->self()->getRace())
+				switch (InfoManager::instance().myRace)
 				{
 				case Races::Zerg:
 					for (const auto item : TrainingManager::instance().unitQueue)
 					{
-						if (item.type == Broodwar->self()->getRace().getSupplyProvider())
+						if (item.type == InfoManager::instance().myRace.getSupplyProvider())
 						{
 							return true;
 						}
 					}
+					break;
 				default:
 					for (const auto item : instance().itemsInProgress_)
 					{
-						if (item.second.unit == Broodwar->self()->getRace().getSupplyProvider())
+						if (!std::holds_alternative<UnitType>(item.second.type))
+						{
+							continue;
+						}
+						if (std::get<UnitType>(item.second.type) == InfoManager::instance().myRace.getSupplyProvider())
 						{
 							return true;
 						}
 					}
+					break;
 				}
 				return false;
 			};
@@ -240,59 +235,53 @@ namespace Jabbo
 					if (!BuildOrderManager::instance().myBo.itemsBO.empty())
 					{
 						auto next = BuildOrderManager::instance().myBo.itemsBO[0];
-
-						if (!next.unit.isBuilding())
+						if (!std::holds_alternative<UnitType>(next.type))
 						{
-							if ((Broodwar->self()->supplyTotal() / 2 - Broodwar->self()->supplyUsed() / 2 > 2 && Broodwar->self()->getRace()) || foundSupplyBeingBuilt())
-							{
-								return Status::Failure;
-							}
-							const BOItem newItem = { Broodwar->self()->supplyUsed() / 2, Broodwar->self()->getRace().getSupplyProvider() };
-							BuildOrderManager::instance().myBo.itemsBO.emplace(BuildOrderManager::instance().myBo.itemsBO.begin(), newItem);
+							Broodwar->sendText("wwhat");
 							return Status::Failure;
 						}
-						if (instance().iHaveMoney(next.unit) && Broodwar->self()->supplyUsed() / 2 >= next.supply)
+						UnitType aux = std::get<UnitType>(next.type);
+						if (aux.isBuilding())
 						{
-							instance().chosenType_ = next.unit;
-							instance().isFromBO_ = true;
+							if (Broodwar->self()->supplyUsed() / 2 >= next.supply)
+							{
+								instance().chosenType_ = aux;
+								instance().isFromBO_ = true;
+							}
 						}
 					}
 					else
 					{
 						// Supply no Zerg
-						if (Broodwar->self()->supplyTotal() / 2 - Broodwar->self()->supplyUsed() / 2 <= 2 && Broodwar->self()->getRace() != Races::Zerg)
+						if (Broodwar->self()->supplyTotal() / 2 - Broodwar->self()->supplyUsed() / 2 <= 2 && InfoManager::instance().myRace != Races::Zerg)
 						{
-							if (!instance().iHaveMoney(Broodwar->self()->getRace().getSupplyProvider()))
-							{
-								return Status::Failure;
-							}
 							for (const auto item : instance().buildingsResourcesQueue)
 							{
-								if (item == Broodwar->self()->getRace().getSupplyProvider()) return Status::Failure;
+								if (item == InfoManager::instance().myRace.getSupplyProvider()) return Status::Failure;
 							}
-							if (Broodwar->self()->getRace() == Races::Terran)
+							if (InfoManager::instance().myRace == Races::Terran)
 							{
 								for (const auto task : instance().workerTask)
 								{
-									if (task.first->getType() == Broodwar->self()->getRace().getSupplyProvider()) return Status::Failure;
+									if (task.first->getType() == InfoManager::instance().myRace.getSupplyProvider()) return Status::Failure;
 								}
 							}
 							else
 							{
 								for (const auto transforming : instance().unitTransforming_)
 								{
-									if (transforming.first->getType() == Broodwar->self()->getRace().getSupplyProvider()) return Status::Failure;
+									if (transforming.first->getType() == InfoManager::instance().myRace.getSupplyProvider()) return Status::Failure;
 								}
 							}
-							instance().chosenType_ = Broodwar->self()->getRace().getSupplyProvider();
+							instance().chosenType_ = InfoManager::instance().myRace.getSupplyProvider();
 						}
 						else
 						{
-							switch (Broodwar->self()->getRace())
+							switch (InfoManager::instance().myRace)
 							{
 							case Races::Protoss:
 								// Gateways
-								if (UnitManager::getNumberUnits(UnitTypes::Protoss_Gateway) < BaseManager::getFriendlyBasesCount(true) * 3 && iHaveMoney(UnitTypes::Protoss_Gateway))
+								if (UnitManager::getNumberUnits(UnitTypes::Protoss_Gateway) < BaseManager::getFriendlyBasesCount(true) * 3 && EconManager::iHaveMoney(UnitTypes::Protoss_Gateway))
 								{
 									instance().chosenType_ = UnitTypes::Protoss_Gateway;
 									break;
@@ -301,7 +290,7 @@ namespace Jabbo
 								// TODO Add more different buildings based on EnemyInfo and wanted units to train
 							case Races::Terran:
 								// Barracks
-								if (UnitManager::getNumberUnits(UnitTypes::Terran_Barracks) < BaseManager::getFriendlyBasesCount(true) * 3 && iHaveMoney(UnitTypes::Terran_Barracks))
+								if (UnitManager::getNumberUnits(UnitTypes::Terran_Barracks) < BaseManager::getFriendlyBasesCount(true) * 3 && EconManager::iHaveMoney(UnitTypes::Terran_Barracks))
 								{
 									instance().chosenType_ = UnitTypes::Terran_Barracks;
 									break;
@@ -337,20 +326,18 @@ namespace Jabbo
 					{
 						if (instance().chosenType_.requiresPsi())
 						{
-							instance().chosenPosition_ = mapBweb.getBuildPosition(instance().chosenType_, instance().reserved_, Broodwar->self()->getStartLocation(),
-								true);
+							instance().chosenPosition_ = mapBweb.getBuildPosition(instance().chosenType_, Broodwar->self()->getStartLocation(), true);
 						}
 						else
 						{
-							instance().chosenPosition_ = mapBweb.getBuildPosition(instance().chosenType_, instance().reserved_, Broodwar->self()->getStartLocation(),
-								false);
+							instance().chosenPosition_ = mapBweb.getBuildPosition(instance().chosenType_, Broodwar->self()->getStartLocation(), false);
 						}
 					}
 					else
 					{
 						instance().chosenPosition_ = instance().chooseGeyser();
 					}
-					if (instance().chosenPosition_ != TilePositions::Unknown)
+					if (instance().chosenPosition_ != TilePositions::Unknown && instance().chosenPosition_.isValid())
 					{
 						return Status::Success;
 					}
@@ -385,19 +372,22 @@ namespace Jabbo
 					}
 					if (chosenWorker)
 					{
-						RecollectManager::instance().workerIdle.erase(chosenWorker);
-						BuildInfo placeType = { instance().chosenType_, instance().chosenPosition_ , false };
-						if (instance().isFromBO_)
+						if (EconManager::instance().iHaveMoney(instance().chosenType_, chosenWorker->getTilePosition(), instance().chosenPosition_))
 						{
-							placeType.isFromBO = true;
-							instance().itemsInProgress_.emplace(pair<Unit, BOItem>(chosenWorker, BuildOrderManager::instance().myBo.itemsBO[0]));
-							BuildOrderManager::instance().myBo.itemsBO.erase(BuildOrderManager::instance().myBo.itemsBO.begin());
+							RecollectManager::instance().workerIdle.erase(chosenWorker);
+							BuildInfo placeType = { instance().chosenType_, instance().chosenPosition_ , false };
+							if (instance().isFromBO_)
+							{
+								placeType.isFromBO = true;
+								instance().itemsInProgress_.emplace(pair<Unit, BOItem>(chosenWorker, BuildOrderManager::instance().myBo.itemsBO[0]));
+								BuildOrderManager::instance().myBo.itemsBO.erase(BuildOrderManager::instance().myBo.itemsBO.begin());
+							}
+							mapBweb.getUsedTiles().emplace(instance().chosenPosition_);
+							instance().workerBuild.emplace(pair<Unit, BuildInfo>(chosenWorker, placeType));
+							instance().buildingsResourcesQueue.emplace_back(instance().chosenType_);
+							chosenWorker->move(Position(instance().chosenPosition_));
+							return Status::Success;
 						}
-						instance().reserved_.emplace(instance().chosenPosition_);
-						instance().workerBuild.emplace(pair<Unit, BuildInfo>(chosenWorker, placeType));
-						instance().buildingsResourcesQueue.emplace_back(instance().chosenType_);
-						chosenWorker->move(Position(instance().chosenPosition_));
-						return Status::Success;
 					}
 					return Status::Failure;
 				}
@@ -432,21 +422,24 @@ namespace Jabbo
 					}
 					if (chosenWorker && mineral)
 					{
-						RecollectManager::instance().workerMineral.erase(chosenWorker);
-						ResourceManager::instance().minerals[mineral]--;
-						BuildInfo placeType = { instance().chosenType_, instance().chosenPosition_ ,false };
-
-						if (instance().isFromBO_)
+						if (EconManager::instance().iHaveMoney(instance().chosenType_, chosenWorker->getTilePosition(), instance().chosenPosition_))
 						{
-							placeType.isFromBO = true;
-							instance().itemsInProgress_.emplace(pair<Unit, BOItem>(chosenWorker, BuildOrderManager::instance().myBo.itemsBO[0]));
-							BuildOrderManager::instance().myBo.itemsBO.erase(BuildOrderManager::instance().myBo.itemsBO.begin());
+							RecollectManager::instance().workerMineral.erase(chosenWorker);
+							ResourceManager::instance().minerals[mineral]--;
+							BuildInfo placeType = { instance().chosenType_, instance().chosenPosition_ ,false };
+
+							if (instance().isFromBO_)
+							{
+								placeType.isFromBO = true;
+								instance().itemsInProgress_.emplace(pair<Unit, BOItem>(chosenWorker, BuildOrderManager::instance().myBo.itemsBO[0]));
+								BuildOrderManager::instance().myBo.itemsBO.erase(BuildOrderManager::instance().myBo.itemsBO.begin());
+							}
+							mapBweb.getUsedTiles().emplace(instance().chosenPosition_);
+							instance().workerBuild.emplace(pair<Unit, BuildInfo>(chosenWorker, placeType));
+							instance().buildingsResourcesQueue.emplace_back(instance().chosenType_);
+							chosenWorker->move(Position(instance().chosenPosition_));
+							return Status::Success;
 						}
-						instance().reserved_.emplace(instance().chosenPosition_);
-						instance().workerBuild.emplace(pair<Unit, BuildInfo>(chosenWorker, placeType));
-						instance().buildingsResourcesQueue.emplace_back(instance().chosenType_);
-						chosenWorker->move(Position(instance().chosenPosition_));
-						return Status::Success;
 					}
 					return Status::Failure;
 				}
@@ -494,7 +487,7 @@ namespace Jabbo
 					}
 					if (unit->isIdle())
 					{
-						unit->attack(Position(InfoManager::instance().mainChoke.value()));
+						unit->attack(Position(InfoManager::instance().mainChoke.value()->Center()));
 					}
 				}
 			}

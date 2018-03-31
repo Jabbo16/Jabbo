@@ -1,6 +1,7 @@
 #include "ResourceManager.hpp"
 #include "RecollectManager.hpp"
-
+#include <set>
+#include "BaseManager.hpp"
 using namespace BWAPI;
 namespace Jabbo {
 	ResourceManager::ResourceManager()

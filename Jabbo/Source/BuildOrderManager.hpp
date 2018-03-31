@@ -3,20 +3,22 @@
 #include <BWAPI.h>
 #include <vector>
 #include <string>
+#include <any>
+#include <variant>
 
 using namespace BWAPI;
 using namespace std;
 
 struct BOItem {
 	int supply{};
-	UnitType unit;
+	variant<UnitType, TechType, UpgradeType> type;
 };
 
 struct BuildOrder {
 	vector< BOItem > itemsBO;
 	string name;
 	Race enemyRace;
-	bool wall{};//if a wall-in is required
+	bool wall{};//if a wall-in is required, maybe vector of unittypes at walls that could be empty? // TODO read comment
 };
 
 class BuildOrderManager {

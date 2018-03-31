@@ -12,6 +12,7 @@ namespace Jabbo {
 		MapManager();
 		static MapManager & instance();
 		static pair<double, double> sumPosition(const vector<pair<double, double>>& pairs);
+		static double getGroundDistance(Position start, Position end);
 		static Position getKitePosition(set<scutil::UnitInfo> &enemiesToKite, Unit myUnit);
 	};
 }

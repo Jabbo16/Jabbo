@@ -1,6 +1,5 @@
 #include "InfoManager.hpp"
 #include "BWEB/BWEB.h"
-#include <UnitInfoManager.h>
 
 using namespace BWAPI;
 namespace { auto & bwem = BWEM::Map::Instance(); }
@@ -20,8 +19,9 @@ namespace Jabbo {
 
 	void InfoManager::onStart()
 	{
-		instance().mainChoke.emplace(mapBweb.getFirstChoke());
-		instance().naturalChoke.emplace(mapBweb.getSecondChoke());
+		instance().myRace = Broodwar->self()->getRace();
+		instance().mainChoke.emplace(mapBweb.getMainChoke());
+		instance().naturalChoke.emplace(mapBweb.getNaturalChoke());
 		instance().mainNaturalBase.emplace(getBaseFromTile(mapBweb.getNatural()));
 	}
 

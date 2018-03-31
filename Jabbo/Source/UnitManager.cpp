@@ -1,4 +1,5 @@
 #include "UnitManager.hpp"
+#include <UnitInfoManager.h>
 using namespace BWAPI;
 using namespace scutil;
 using namespace Filter;

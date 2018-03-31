@@ -3,6 +3,8 @@
 #include "BuildingManager.hpp"
 #include "UnitInfoManager.h"
 #include "ResourceManager.hpp"
+#include "EconManager.hpp"
+#include "InfoManager.hpp"
 using namespace scutil;
 using namespace Filter;
 using namespace BWAPI;
@@ -17,18 +19,6 @@ namespace Jabbo {
 		return instance;
 	}
 
-	bool TrainingManager::iHaveMoney(const UnitType & unit)
-	{
-		auto myMinerals = Broodwar->self()->minerals();
-		auto myGas = Broodwar->self()->gas();
-		for (auto queue : BuildingManager::instance().buildingsResourcesQueue)
-		{
-			myMinerals -= queue.mineralPrice();
-			myGas -= queue.gasPrice();
-		}
-		return myMinerals >= unit.mineralPrice() && myGas >= unit.gasPrice();
-	}
-
 	void TrainingManager::updateScoring()
 	{
 		// Unit score based off enemy composition
@@ -36,7 +26,7 @@ namespace Jabbo {
 		for (const auto t : enemyUnitInfo.getUnits())
 		{
 			// For each type, add a score to production based on the unit count divided by our current unit count
-			if (Broodwar->self()->getRace() == Races::Protoss)
+			if (InfoManager::instance().myRace == Races::Protoss)
 			{
 				updateProtossUnitScore(t.second.type, enemyUnitInfo.getNumUnits(t.second.type));
 			}
@@ -168,13 +158,13 @@ namespace Jabbo {
 	{
 		//Workers
 		auto myUnitData = UnitInfoManager::getInstance().getUnitDataOfPlayer(Broodwar->self());
-		if (unsigned int(Broodwar->self()->allUnitCount(Broodwar->self()->getRace().getWorker())) < unsigned int(ResourceManager::instance().minerals.size() * 2 + ResourceManager::instance().gas.size() + 1))
+		if (EconManager::iHaveMoney(InfoManager::instance().myRace.getWorker()) && unsigned int(Broodwar->self()->allUnitCount(InfoManager::instance().myRace.getWorker())) < unsigned int(ResourceManager::instance().minerals.size() * 2 + ResourceManager::instance().gas.size() + 1))
 		{
 			for (auto u : myUnitData.getUnits())
 			{
 				if (u.second.type.isResourceDepot() && !u.first->isTraining())
 				{
-					switch (Broodwar->self()->getRace())
+					switch (InfoManager::instance().myRace)
 					{
 					case Races::Terran:
 						u.first->train(UnitTypes::Terran_SCV);
@@ -194,21 +184,22 @@ namespace Jabbo {
 		if (!BuildOrderManager::instance().myBo.itemsBO.empty())
 		{
 			auto next = BuildOrderManager::instance().myBo.itemsBO[0];
-
-			if (!next.unit.isBuilding())
+			if (!std::holds_alternative<UnitType>(next.type))
 			{
-				if (instance().iHaveMoney(next.unit) && Broodwar->self()->supplyUsed() / 2 >= next.supply)
+				return;
+			}
+			UnitType aux = std::get<UnitType>(next.type);
+			if (!aux.isBuilding() && (EconManager::iHaveMoney(aux) && Broodwar->self()->supplyUsed() / 2 >= next.supply))
+			{
+				for (auto &b : myUnitData.getUnits())
 				{
-					for (auto &b : myUnitData.getUnits())
+					if (b.first->canTrain(aux) && !b.first->isTraining())
 					{
-						if (b.first->canTrain(next.unit) && !b.first->isTraining())
-						{
-							b.first->train(next.unit);
-							const auto frame = next.unit.buildTime() + Broodwar->getFrameCount();
-							instance().unitQueue.emplace_back(UnitItemQueue{ b.first, next.unit, frame, true });
-							BuildOrderManager::instance().myBo.itemsBO.erase(BuildOrderManager::instance().myBo.itemsBO.begin());
-							return;
-						}
+						b.first->train(aux);
+						const auto frame = aux.buildTime() + Broodwar->getFrameCount();
+						instance().unitQueue.emplace_back(UnitItemQueue{ b.first, aux, frame, true });
+						BuildOrderManager::instance().myBo.itemsBO.erase(BuildOrderManager::instance().myBo.itemsBO.begin());
+						return;
 					}
 				}
 			}
@@ -238,7 +229,7 @@ namespace Jabbo {
 			}
 		}
 		//Broodwar->sendText(highestType.c_str());
-		if (highestType != UnitTypes::None && iHaveMoney(highestType) && building)
+		if (highestType != UnitTypes::None && EconManager::iHaveMoney(highestType) && building)
 		{
 			building->train(highestType);
 			auto const frame = highestType.buildTime() + Broodwar->getFrameCount();
@@ -251,7 +242,7 @@ namespace Jabbo {
 		auto requirements = unitType.requiredUnits();
 		for (const auto requirement : requirements)
 		{
-			bool found = false;
+			auto found = false;
 			for (const auto building : UnitInfoManager::getInstance().getUnitDataOfPlayer(Broodwar->self()).getUnits())
 			{
 				if (building.second.type == requirement.first &&

@@ -1,9 +1,9 @@
 #include "WorkerScouterAgent.hpp"
 #include "../InfoManager.hpp"
-#include <BWTA.h>
 #include "../SimulationManager.hpp"
 #include "../MapManager.hpp"
 
+namespace { auto & bwem = BWEM::Map::Instance(); }
 namespace Jabbo
 {
 	set<Base> WorkerScouterAgent::initScouter(const bool allBases)
@@ -44,7 +44,7 @@ namespace Jabbo
 		}
 		if (this->attackers.empty())
 		{
-			if (BWTA::getRegion(this->myUnit->getPosition()) != BWTA::getRegion(this->baseToHarass->tile))
+			if (bwem.GetNearestArea(WalkPosition(this->myUnit->getPosition())) != bwem.GetNearestArea(WalkPosition(this->baseToHarass->tile)))
 			{
 				this->harassStatus = None;
 				return;

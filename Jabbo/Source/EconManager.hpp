@@ -1,7 +1,5 @@
 #pragma once
 #include <BWAPI.h>
-#include "BaseManager.hpp"
-#include "UnitInfoManager.h"
 namespace Jabbo {
 	using namespace BWAPI;
 	using namespace std;
@@ -9,9 +7,11 @@ namespace Jabbo {
 	{
 	public:
 		EconManager();
+		static bool iHaveMoney(const UnitType& unit);
+		bool iHaveMoney(const UnitType & unit, TilePosition start, TilePosition end) const;
 		static double mineralGainPerFrame();
-		static int getMineralsWhenReaching(Unit u, TilePosition start, TilePosition end);
-		static int getMineralsWhenReaching(const TilePosition start, const TilePosition end);
+		static int getMineralsWhenReaching(Unit u, Position start, Position end);
+		static int getMineralsWhenReaching(Position start, Position end);
 		static EconManager & instance();
 	};
 }

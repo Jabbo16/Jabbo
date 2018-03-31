@@ -157,7 +157,6 @@
     <ClInclude Include="Source\BWEB\AStar.h" />
     <ClInclude Include="Source\BWEB\Block.h" />
     <ClInclude Include="Source\BWEB\BWEB.h" />
-    <ClInclude Include="Source\BWEB\BWEBUtil.h" />
     <ClInclude Include="Source\BWEB\Station.h" />
     <ClInclude Include="Source\BWEB\Wall.h" />
     <ClInclude Include="Source\DrawManager.hpp" />

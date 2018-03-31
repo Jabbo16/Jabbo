@@ -1,16 +1,7 @@
 #pragma once
 
 #include <BWAPI.h>
-#include"BWEM 1.4.1/src/bwem.h"
-#include "BWEB/BWEB.h"
-#include "ResourceManager.hpp"
-#include "RecollectManager.hpp"
-#include "TrainingManager.hpp"
-#include "UnitInfoManager.h"
-#include <string>
-#include <iostream>
-#include <vector>
-
+using namespace BWAPI;
 namespace Jabbo
 {
 	class JabboModule : public BWAPI::AIModule

@@ -1,7 +1,5 @@
 #pragma once
 #include <BWAPI.h>
-#include "BaseManager.hpp"
-#include "UnitInfoManager.h"
 namespace Jabbo {
 	using namespace BWAPI;
 	using namespace std;

@@ -1,5 +1,5 @@
 #include "MapManager.hpp"
-#include "BWEM 1.4.1/src/gridMap.h"
+#include "BWEM 1.4.1/src/bwem.h"
 using namespace BWAPI;
 namespace { auto & bwem = BWEM::Map::Instance(); }
 namespace Jabbo {
@@ -24,6 +24,22 @@ namespace Jabbo {
 			sum = sum + vector;
 		}
 		return sum;
+	}
+
+	double MapManager::getGroundDistance(Position start, Position end)
+	{
+		auto dist = 0.0;
+		if (!start.isValid() || !end.isValid() || !BWEM::Map::Instance().GetArea(WalkPosition(start)) || !BWEM::Map::Instance().GetArea(WalkPosition(end)))
+			return DBL_MAX;
+
+		for (auto& cpp : BWEM::Map::Instance().GetPath(start, end))
+		{
+			const auto center = Position{ cpp->Center() };
+			dist += start.getDistance(center);
+			start = center;
+		}
+
+		return dist += start.getDistance(end);
 	}
 
 	Position MapManager::getKitePosition(set<scutil::UnitInfo> &enemiesToKite, const Unit myUnit)

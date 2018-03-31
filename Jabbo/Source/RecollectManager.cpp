@@ -152,18 +152,10 @@ namespace Jabbo {
 	{
 		for (const auto m : instance().workerMineral)
 		{
-			if (m.first->getLastCommandFrame() == Broodwar->getFrameCount())
-			{
-				continue;
-			}
-			if (!m.first->getOrderTarget())
-			{
-				continue;
-			}
-			if (m.first->getOrderTarget()->getID() != m.second->getID() && !m.first->isCarryingMinerals())
-			{
-				m.first->gather(m.second);
-			}
+			if (m.first->getLastCommandFrame() == Broodwar->getFrameCount()) continue;
+			if (m.first->isIdle()) m.first->gather(m.second);
+			if (!m.first->getOrderTarget()) continue;
+			if (m.first->getOrderTarget()->getID() != m.second->getID() && !m.first->isCarryingMinerals()) m.first->gather(m.second);
 		}
 	}
 	void RecollectManager::onFrame()

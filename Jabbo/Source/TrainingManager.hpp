@@ -1,7 +1,5 @@
 #pragma once
-
 #include <BWAPI.h>
-#include <set>
 namespace Jabbo {
 	using namespace BWAPI;
 	using namespace std;
@@ -20,7 +18,6 @@ namespace Jabbo {
 		TrainingManager();
 		vector<UnitItemQueue> unitQueue{};
 		static TrainingManager & instance();
-		static bool iHaveMoney(const UnitType & unit);
 		void updateScoring();
 		void updateProtossUnitScore(UnitType unit, int count);
 		static void onFrame();
