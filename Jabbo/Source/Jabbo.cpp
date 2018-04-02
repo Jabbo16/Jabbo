@@ -26,8 +26,8 @@ void JabboModule::onStart()
 	MapPrinter::Initialize(&bwem);
 
 	mapBweb.onStart();
-	std::vector<UnitType> wall = { UnitTypes::Terran_Supply_Depot, UnitTypes::Terran_Barracks, UnitTypes::Terran_Bunker };
-	//	mapBweb.findFullWall(wall);
+	//	std::vector<UnitType> wall = { UnitTypes::Terran_Supply_Depot, UnitTypes::Terran_Barracks, UnitTypes::Terran_Bunker };
+	//	mapBweb.createWall(wall, mapBweb.getNaturalArea(), mapBweb.getNaturalChoke());
 	mapBweb.findBlocks();
 	UnitInfoManager::getInstance().onStart();
 	Broodwar->enableFlag(Flag::UserInput);

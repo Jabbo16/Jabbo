@@ -20,7 +20,7 @@ namespace Jabbo {
 
 	void DrawManager::onFrame()
 	{
-		//		mapBweb.draw();
+		mapBweb.draw();
 
 		for (const auto m : ResourceManager::instance().minerals)
 		{

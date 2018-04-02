@@ -324,14 +324,7 @@ namespace Jabbo
 					instance().chosenPosition_ = TilePositions::Unknown;
 					if (!instance().chosenType_.isRefinery())
 					{
-						if (instance().chosenType_.requiresPsi())
-						{
-							instance().chosenPosition_ = mapBweb.getBuildPosition(instance().chosenType_, Broodwar->self()->getStartLocation(), true);
-						}
-						else
-						{
-							instance().chosenPosition_ = mapBweb.getBuildPosition(instance().chosenType_, Broodwar->self()->getStartLocation(), false);
-						}
+						instance().chosenPosition_ = mapBweb.getBuildPosition(instance().chosenType_, Broodwar->self()->getStartLocation());
 					}
 					else
 					{

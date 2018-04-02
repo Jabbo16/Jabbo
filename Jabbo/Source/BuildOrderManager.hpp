@@ -3,7 +3,6 @@
 #include <BWAPI.h>
 #include <vector>
 #include <string>
-#include <any>
 #include <variant>
 
 using namespace BWAPI;

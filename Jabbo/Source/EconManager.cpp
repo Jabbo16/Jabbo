@@ -1,9 +1,6 @@
 #include "EconManager.hpp"
 #include "BuildingManager.hpp"
 #include "UnitInfoManager.h"
-#include "BWEM 1.4.1/src/bwem.h"
-#include <BWAPI/AIModule.h>
-#include <BWAPI/AIModule.h>
 #include "MapManager.hpp"
 using namespace BWAPI;
 using namespace scutil;

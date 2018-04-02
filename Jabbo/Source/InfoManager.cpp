@@ -2,7 +2,6 @@
 #include "BWEB/BWEB.h"
 
 using namespace BWAPI;
-namespace { auto & bwem = BWEM::Map::Instance(); }
 namespace { auto& mapBweb = BWEB::Map::Instance(); }
 namespace Jabbo {
 	Base InfoManager::getBaseFromTile(const TilePosition tile)

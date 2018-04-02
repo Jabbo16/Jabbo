@@ -2,6 +2,7 @@
 #include "BWEM 1.4.1/src/bwem.h"
 using namespace BWAPI;
 namespace { auto & bwem = BWEM::Map::Instance(); }
+
 namespace Jabbo {
 	MapManager::MapManager()
 		= default;
@@ -29,10 +30,10 @@ namespace Jabbo {
 	double MapManager::getGroundDistance(Position start, Position end)
 	{
 		auto dist = 0.0;
-		if (!start.isValid() || !end.isValid() || !BWEM::Map::Instance().GetArea(WalkPosition(start)) || !BWEM::Map::Instance().GetArea(WalkPosition(end)))
+		if (!start.isValid() || !end.isValid() || !bwem.GetArea(WalkPosition(start)) || !bwem.GetArea(WalkPosition(end)))
 			return DBL_MAX;
 
-		for (auto& cpp : BWEM::Map::Instance().GetPath(start, end))
+		for (auto& cpp : bwem.GetPath(start, end))
 		{
 			const auto center = Position{ cpp->Center() };
 			dist += start.getDistance(center);
@@ -51,7 +52,7 @@ namespace Jabbo {
 
 		vector<pair<double, double>> vectors{};
 
-		double minDistance = 99999999;
+		auto minDistance = DBL_MAX;
 		for (const auto enemy : enemiesToKite) {
 			const auto enemyPosition = enemy.lastPosition;
 			auto difference = ownPosition - enemyPosition;

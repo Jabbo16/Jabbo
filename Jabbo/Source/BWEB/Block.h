@@ -12,7 +12,7 @@ namespace BWEB
 		TilePosition t;
 		set <TilePosition> small, medium, large;
 	public:
-		Block() { };
+		Block() : w(0), h(0) {};
 		Block(int, int, TilePosition);
 		int width() const { return w; }
 		int height() const { return h; }
@@ -29,8 +29,8 @@ namespace BWEB
 		// Returns the const set of tilepositions that belong to 4x3 (large) buildings
 		set<TilePosition> LargeTiles() const { return large; }
 
-		void insertSmall(TilePosition here) { small.insert(here); }
-		void insertMedium(TilePosition here) { medium.insert(here); }
-		void insertLarge(TilePosition here) { large.insert(here); }
+		void insertSmall(const TilePosition here) { small.insert(here); }
+		void insertMedium(const TilePosition here) { medium.insert(here); }
+		void insertLarge(const TilePosition here) { large.insert(here); }
 	};
 }

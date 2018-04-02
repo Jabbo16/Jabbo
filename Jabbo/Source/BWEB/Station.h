@@ -1,5 +1,6 @@
 #pragma once
 #include "BWEB.h"
+
 namespace BWEB
 {
 	using namespace BWAPI;
@@ -12,10 +13,10 @@ namespace BWEB
 		Position resourceCentroid;
 
 	public:
-		Station(Position, set<TilePosition>, const BWEM::Base*);
+		Station(Position, const set<TilePosition>&, const BWEM::Base*);
 
 		// Returns the central position of the resources associated with this base including geysers
-		const Position ResourceCentroid() const { return resourceCentroid; }
+		Position ResourceCentroid() const { return resourceCentroid; }
 
 		// Returns the set of defense locations associated with this base
 		const set<TilePosition>& DefenseLocations() const { return defenses; }
