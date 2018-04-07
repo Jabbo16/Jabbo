@@ -8,6 +8,7 @@
 #include "ResourceManager.hpp"
 #include "TrainingManager.hpp"
 #include "BWEB/BWEB.h"
+#include <chrono>
 using namespace BWAPI;
 using namespace scutil;
 using namespace Filter;
@@ -27,7 +28,12 @@ void JabboModule::onStart()
 
 	mapBweb.onStart();
 	//	std::vector<UnitType> wall = { UnitTypes::Terran_Supply_Depot, UnitTypes::Terran_Barracks, UnitTypes::Terran_Bunker };
+	//
+	//	const auto start = chrono::high_resolution_clock::now();
 	//	mapBweb.createWall(wall, mapBweb.getNaturalArea(), mapBweb.getNaturalChoke());
+	//	const auto dur = std::chrono::duration <double, std::milli>(std::chrono::high_resolution_clock::now() - start).count();
+
+//	Broodwar << "A* with potato time:" << dur << endl;
 	mapBweb.findBlocks();
 	UnitInfoManager::getInstance().onStart();
 	Broodwar->enableFlag(Flag::UserInput);

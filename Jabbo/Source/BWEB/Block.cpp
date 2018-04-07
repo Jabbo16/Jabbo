@@ -1,5 +1,4 @@
 #include "Block.h"
-#include <chrono>
 
 namespace BWEB
 {
@@ -42,7 +41,7 @@ namespace BWEB
 			for (auto y = mainTile.y - 30; y <= mainTile.y + 30; y++)
 			{
 				auto tile = TilePosition(x, y);
-				if (!tile.isValid() || BWEM::Map::Instance().GetArea(tile) != mainArea) continue;
+				if (!tile.isValid() || map.GetArea(tile) != mainArea) continue;
 				auto blockCenter = Position(tile) + Position(80, 64);
 				const auto dist = blockCenter.getDistance(Position(mainChoke->Center()));
 				if (dist > distBest && canAddBlock(tile, 5, 4, true))
@@ -57,9 +56,8 @@ namespace BWEB
 
 	void Map::findBlocks()
 	{
-		const auto start = chrono::high_resolution_clock::now();
 		findStartBlock();
-		map<const BWEM::Area *, int> typePerArea;
+		std::map<const BWEM::Area *, int> typePerArea;
 
 		// Iterate every tile
 		for (auto y = 0; y <= Broodwar->mapHeight(); y++)
@@ -69,13 +67,13 @@ namespace BWEB
 				TilePosition tile(x, y);
 				if (!tile.isValid()) continue;
 
-				auto area = BWEM::Map::Instance().GetArea(tile);
+				auto area = map.GetArea(tile);
 				if (!area) continue;
 
 				// Check if we should mirror our blocks - TODO: Improve the decisions for these
 				auto mirrorHorizontal = false, mirrorVertical = false;
-				if (BWEM::Map::Instance().Center().x > mainPosition.x) mirrorHorizontal = true;
-				if (BWEM::Map::Instance().Center().y > mainPosition.y) mirrorVertical = true;
+				if (map.Center().x > mainPosition.x) mirrorHorizontal = true;
+				if (map.Center().y > mainPosition.y) mirrorVertical = true;
 
 				if (Broodwar->self()->getRace() == Races::Protoss)
 				{
@@ -130,9 +128,6 @@ namespace BWEB
 				}
 			}
 		}
-
-		const auto dur = std::chrono::duration <double, std::milli>(std::chrono::high_resolution_clock::now() - start).count();
-		Broodwar << "Block time:" << dur << endl;
 	}
 
 	bool Map::canAddBlock(const TilePosition here, const int width, const int height, const bool lowReq)
@@ -144,10 +139,10 @@ namespace BWEB
 		TilePosition four(here.x + width - 1, here.y + height - 1);
 
 		if (!one.isValid() || !two.isValid() || !three.isValid() || !four.isValid()) return false;
-		if (!BWEM::Map::Instance().GetTile(one).Buildable() || overlapsAnything(one)) return false;
-		if (!BWEM::Map::Instance().GetTile(two).Buildable() || overlapsAnything(two)) return false;
-		if (!BWEM::Map::Instance().GetTile(three).Buildable() || overlapsAnything(three)) return false;
-		if (!BWEM::Map::Instance().GetTile(four).Buildable() || overlapsAnything(four)) return false;
+		if (!map.GetTile(one).Buildable() || overlapsAnything(one)) return false;
+		if (!map.GetTile(two).Buildable() || overlapsAnything(two)) return false;
+		if (!map.GetTile(three).Buildable() || overlapsAnything(three)) return false;
+		if (!map.GetTile(four).Buildable() || overlapsAnything(four)) return false;
 
 		const auto offset = lowReq ? 0 : 1;
 		// Check if a block of specified size would overlap any bases, resources or other blocks
@@ -158,7 +153,7 @@ namespace BWEB
 				TilePosition tile(x, y);
 				if (tile == one || tile == two || tile == three || tile == four) continue;
 				if (!tile.isValid()) return false;
-				if (!BWEM::Map::Instance().GetTile(TilePosition(x, y)).Buildable()) return false;
+				if (!map.GetTile(TilePosition(x, y)).Buildable()) return false;
 				if (overlapGrid[x][y] > 0) return false;
 			}
 		}

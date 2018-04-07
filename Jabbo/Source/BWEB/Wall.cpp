@@ -1,7 +1,6 @@
 #include "Wall.h"
 #include "AStar.h"
 #include <tuple>
-#include <chrono>
 
 namespace BWEB
 {
@@ -16,9 +15,6 @@ namespace BWEB
 	{
 		if (!area || !choke || buildings.empty())
 			return;
-
-		// Start a clock to time walls
-		const auto start{ chrono::high_resolution_clock::now() };
 
 		// I got sick of passing the parameters everywhere, sue me
 		this->buildings = buildings, this->area = area, this->choke = choke, this->tight = tight, this->reservePath = reservePath;
@@ -47,7 +43,7 @@ namespace BWEB
 			for (auto& tile : currentPath)
 			{
 				reserveGrid[tile.x][tile.y] = 1;
-				if (!BWEM::Map::Instance().GetArea(tile))
+				if (!map.GetArea(tile))
 					newWall.setWallDoor(tile);
 			}
 		}
@@ -64,10 +60,6 @@ namespace BWEB
 
 		// Push wall into the vector
 		walls.push_back(newWall);
-
-		// Print time
-		const auto dur = chrono::duration <double, milli>(chrono::high_resolution_clock::now() - start).count();
-		Broodwar << "Wall time: " << dur << endl;
 	}
 
 	bool Map::iteratePieces()
@@ -266,16 +258,26 @@ namespace BWEB
 
 		// Reset hole and get a new path
 		currentHole = TilePositions::None;
-		currentPath = AStar().findPath(startTile, endTile, true);
+		//		currentPath = AStar().findPath(map, *this, startTile, endTile, true);
+
+		auto currentPath = AStar().pathfind(startTile, endTile);
+
 		currentPathSize = static_cast<double>(currentPath.size());
 
-		// Quick check to see if the path contains our end point
-		if (find(currentPath.begin(), currentPath.end(), endTile) == currentPath.end())
+		if (currentPath.find(endTile) == currentPath.end())
 		{
 			currentHole = TilePositions::None;
 			currentPathSize = DBL_MAX;
 			return;
 		}
+
+		// Quick check to see if the path contains our end point
+//		if (find(currentPath.begin(), currentPath.end(), endTile) == currentPath.end())
+//		{
+//			currentHole = TilePositions::None;
+//			currentPathSize = DBL_MAX;
+//			return;
+//		}
 
 		// Otherwise iterate all tiles and locate the hole
 		for (auto& tile : currentPath)
@@ -332,7 +334,7 @@ namespace BWEB
 
 				const auto dist = center.getDistance(hold);
 
-				if (BWEM::Map::Instance().GetArea(TilePosition(center)) != wall.getArea()) continue;
+				if (map.GetArea(TilePosition(center)) != wall.getArea()) continue;
 				if (p.getDistance(Position(endTile)) < wall.getCentroid().getDistance(Position(endTile))) continue;
 
 				if (dist < distance)
@@ -505,7 +507,7 @@ namespace BWEB
 	void Map::setStartTile()
 	{
 		auto distBest = DBL_MAX;
-		if (!BWEM::Map::Instance().GetArea(startTile) || !isWalkable(startTile))
+		if (!map.GetArea(startTile) || !isWalkable(startTile))
 		{
 			for (auto x = startTile.x - 2; x < startTile.x + 2; x++)
 			{
@@ -514,7 +516,7 @@ namespace BWEB
 					TilePosition t(x, y);
 					const auto dist = t.getDistance(endTile);
 					if (overlapsCurrentWall(t) != UnitTypes::None) continue;
-					if (BWEM::Map::Instance().GetArea(t) == area && dist < distBest)
+					if (map.GetArea(t) == area && dist < distBest)
 						startTile = TilePosition(x, y), distBest = dist;
 				}
 			}
@@ -524,7 +526,7 @@ namespace BWEB
 	void Map::setEndTile()
 	{
 		auto distBest = 0.0;
-		if (!BWEM::Map::Instance().GetArea(endTile) || !isWalkable(endTile))
+		if (!map.GetArea(endTile) || !isWalkable(endTile))
 		{
 			for (auto x = endTile.x - 2; x < endTile.x + 2; x++)
 			{
@@ -533,7 +535,7 @@ namespace BWEB
 					TilePosition t(x, y);
 					const auto dist = t.getDistance(startTile);
 					if (overlapsCurrentWall(t) != UnitTypes::None) continue;
-					if (BWEM::Map::Instance().GetArea(t) && dist > distBest)
+					if (map.GetArea(t) && dist > distBest)
 						endTile = TilePosition(x, y), distBest = dist;
 				}
 			}

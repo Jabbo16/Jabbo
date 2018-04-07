@@ -1,5 +1,4 @@
 #include "Station.h"
-#include <chrono>
 
 namespace BWEB
 {
@@ -12,9 +11,7 @@ namespace BWEB
 
 	void Map::findStations()
 	{
-		auto const start{ chrono::high_resolution_clock::now() };
-
-		for (auto& area : BWEM::Map::Instance().Areas())
+		for (auto& area : map.Areas())
 		{
 			for (auto& base : area.Bases())
 			{
@@ -50,9 +47,6 @@ namespace BWEB
 				addOverlap(base.Location(), 4, 3);
 			}
 		}
-
-		const auto dur = std::chrono::duration <double, std::milli>(std::chrono::high_resolution_clock::now() - start).count();
-		Broodwar << "Station time: " << dur << endl;
 	}
 
 	set<TilePosition>& Map::stationDefenses(const TilePosition here, const bool mirrorHorizontal, const bool mirrorVertical)

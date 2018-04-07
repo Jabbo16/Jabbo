@@ -4,4 +4,5 @@
 	<s:String x:Key="/Default/CodeStyle/Naming/CppNaming/Abbreviations/=BWEB/@EntryIndexedValue">BWEB</s:String>
 	<s:String x:Key="/Default/CodeStyle/Naming/CppNaming/Abbreviations/=CSV/@EntryIndexedValue">CSV</s:String>
 	<s:String x:Key="/Default/CodeStyle/Naming/CppNaming/Abbreviations/=FAP/@EntryIndexedValue">FAP</s:String>
-	<s:String x:Key="/Default/CodeStyle/Naming/CppNaming/Abbreviations/=IO/@EntryIndexedValue">IO</s:String></wpf:ResourceDictionary>
+	<s:String x:Key="/Default/CodeStyle/Naming/CppNaming/Abbreviations/=IO/@EntryIndexedValue">IO</s:String>
+	<s:String x:Key="/Default/CodeStyle/Naming/CppNaming/Abbreviations/=PPAP/@EntryIndexedValue">PPAP</s:String></wpf:ResourceDictionary>

@@ -3,7 +3,6 @@
 #include <set>
 
 #include <BWAPI.h>
-//#include "..\BWEM\bwem.h"
 #include "../BWEM 1.4.1/src/bwem.h"
 #include "Station.h"
 #include "Block.h"
@@ -60,6 +59,7 @@ namespace BWEB
 		vector<UnitType> buildings;
 		const BWEM::ChokePoint * choke{};
 		const BWEM::Area * area{};
+		BWEM::Map& map;
 		UnitType tight;
 		bool reservePath{};
 
@@ -68,7 +68,7 @@ namespace BWEB
 		{
 			int location[256][256] = {};
 		};
-		map<UnitType, VisitGrid> visited;
+		std::map<UnitType, VisitGrid> visited;
 		bool parentSame{}, currentSame{};
 		double currentPathSize{};
 
@@ -93,6 +93,7 @@ namespace BWEB
 		static Map* BWEBInstance;
 
 	public:
+		Map(BWEM::Map& map);
 		void draw(), onStart(), onUnitDiscover(Unit), onUnitDestroy(Unit), onUnitMorph(Unit);
 		static Map &Instance();
 		int overlapGrid[256][256] = {};
@@ -101,14 +102,14 @@ namespace BWEB
 		/// This is just put here so AStar can use it for now
 		UnitType overlapsCurrentWall(TilePosition tile, int width = 1, int height = 1);
 
-		static bool overlapsBlocks(TilePosition);
-		static bool overlapsStations(TilePosition);
-		static bool overlapsNeutrals(TilePosition);
-		static bool overlapsMining(TilePosition);
-		static bool overlapsWalls(TilePosition);
+		bool overlapsBlocks(TilePosition);
+		bool overlapsStations(TilePosition);
+		bool overlapsNeutrals(TilePosition);
+		bool overlapsMining(TilePosition);
+		bool overlapsWalls(TilePosition);
 		bool overlapsAnything(TilePosition here, int width = 1, int height = 1, bool ignoreBlocks = false);
 		static bool isWalkable(TilePosition);
-		static int tilesWithinArea(BWEM::Area const *, TilePosition here, int width = 1, int height = 1);
+		int tilesWithinArea(BWEM::Area const *, TilePosition here, int width = 1, int height = 1);
 
 		/// <summary> Returns the closest buildable TilePosition for any type of structure </summary>
 		/// <param name="type"> The UnitType of the structure you want to build.</param>
@@ -195,4 +196,18 @@ namespace BWEB
 		/// <summary> Initializes the building of every BWEB::Block on the map, call it only once per game. </summary>
 		void findBlocks();
 	};
+
+	// This namespace contains functions which could be used for backward compatibility
+	// with existing code.
+	// just put using namespace BWEB::Utils in the header and
+	// replace all usages of Map::overlapsBlocks with just overlapsBlocks
+	namespace Utils
+	{
+		static bool overlapsBlocks(TilePosition);
+		static bool overlapsStations(TilePosition);
+		static bool overlapsNeutrals(TilePosition);
+		static bool overlapsMining(TilePosition);
+		static bool overlapsWalls(TilePosition);
+		static int tilesWithinArea(BWEM::Area const *, TilePosition here, int width = 1, int height = 1);
+	}
 }

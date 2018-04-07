@@ -4,6 +4,53 @@ using namespace std::placeholders;
 
 namespace BWEB
 {
+	std::set<TilePosition> AStar::pathfind(BWAPI::TilePosition topLeftStart, BWAPI::TilePosition const topLeftEnd) const
+	{
+		struct mapSize
+		{
+			int x;
+			int y;
+		};
+		const auto manhattanDistance = [](BWAPI::TilePosition const &a, BWAPI::TilePosition const &b) {
+			return abs(a.x - b.x) + abs(a.y - b.y);
+		};
+
+		const std::vector<BWAPI::TilePosition> deltas{ {0, 1}, {0, -1}, {1, 0}, {-1, 0} };
+		const mapSize mapSize{ Broodwar->mapWidth() ,Broodwar->mapHeight() };
+		const auto totalSize = mapSize.x * mapSize.y;
+		set<TilePosition> visitedPPAP;
+		std::priority_queue<QueueObj> queue;
+		set<TilePosition> realPath;
+		queue.emplace(topLeftStart, 0, 0);
+		visitedPPAP.insert(topLeftStart);
+		while (!queue.empty()) {
+			auto const current = queue.top();
+			queue.pop();
+
+			if (current.pos == topLeftEnd) {
+				return current.path;
+			}
+
+			if (visitedPPAP.find(current.pos) != visitedPPAP.end()) continue;
+
+			visitedPPAP.insert(current.pos);
+			for (auto const &d : deltas) {
+				auto const next = current.pos + d;
+				if (0 <= next.x && next.x < mapSize.x
+					&& 0 <= next.y && next.y < mapSize.y) {
+					if (visitedPPAP.find(next) != visitedPPAP.end()) continue;
+					if (!next.isValid() || BWEB::Map::Instance().overlapGrid[next.x][next.y] > 0 || !BWEB::Map::isWalkable(next)) continue;
+					if (BWEB::Map::Instance().overlapsCurrentWall(next) != UnitTypes::None) continue;
+					if (BWEM::Map::Instance().GetArea(next) && BWEM::Map::Instance().GetArea(next) != BWEM::Map::Instance().GetArea(TilePosition(topLeftStart)) && BWEM::Map::Instance().GetArea(next) != BWEM::Map::Instance().GetArea(TilePosition(topLeftEnd))) continue;
+					QueueObj temp(current.pos, current.dist + 1, current.dist + manhattanDistance(next, topLeftEnd) + 1);
+					temp.path = current.path;
+					queue.emplace(temp);
+				}
+			}
+		}
+		return realPath;
+	}
+
 	Node::Node(const TilePosition tile, Node *newParent)
 	{
 		parent = newParent;
@@ -25,7 +72,7 @@ namespace BWEB
 		};
 	}
 
-	vector<TilePosition> AStar::findPath(const TilePosition source, const TilePosition target, bool walling)
+	vector<TilePosition> AStar::findPath(BWEM::Map& bwem, BWEB::Map& map, const TilePosition source, const TilePosition target, bool walling)
 	{
 		Node *current = nullptr;
 		set<Node*> openSet, closedSet;
@@ -51,9 +98,9 @@ namespace BWEB
 				auto tile(current->coordinates + direction[i]);
 
 				// Detection collision or skip tiles already added to closed set
-				if (!tile.isValid() || BWEB::Map::Instance().overlapGrid[tile.x][tile.y] > 0 || !BWEB::Map::isWalkable(tile) || findNodeOnList(closedSet, tile)) continue;
-				if (BWEB::Map::Instance().overlapsCurrentWall(tile) != UnitTypes::None) continue;
-				if (BWEM::Map::Instance().GetArea(tile) && BWEM::Map::Instance().GetArea(tile) != BWEM::Map::Instance().GetArea(source) && BWEM::Map::Instance().GetArea(tile) != BWEM::Map::Instance().GetArea(target)) continue;
+				if (!tile.isValid() || map.overlapGrid[tile.x][tile.y] > 0 || !BWEB::Map::isWalkable(tile) || findNodeOnList(closedSet, tile)) continue;
+				if (map.overlapsCurrentWall(tile) != UnitTypes::None) continue;
+				if (bwem.GetArea(tile) && bwem.GetArea(tile) != bwem.GetArea(source) && bwem.GetArea(tile) != bwem.GetArea(target)) continue;
 
 				// Cost function?
 				const auto totalCost = current->G + ((i < 4) ? 10 : 14);
