@@ -180,7 +180,10 @@ namespace BWEB
 				Broodwar->drawBoxMap(Position(tile), Position(tile) + Position(65, 65), Broodwar->self()->getColor());
 			Broodwar->drawBoxMap(Position(wall.getDoor()), Position(wall.getDoor()) + Position(33, 33), Broodwar->self()->getColor(), true);
 		}
-
+		for (const auto tile : pathWall)
+		{
+			Broodwar->drawBoxMap(Position(tile), Position(tile) + Position(32, 32), Colors::Red);
+		}
 		//for (int x = 0; x < Broodwar->mapWidth()*4; x++)
 		//{
 		//	for (int y = 0; y < Broodwar->mapHeight()*4; y++)

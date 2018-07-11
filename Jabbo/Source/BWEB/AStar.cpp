@@ -4,51 +4,49 @@ using namespace std::placeholders;
 
 namespace BWEB
 {
-	std::set<TilePosition> AStar::pathfind(BWAPI::TilePosition topLeftStart, BWAPI::TilePosition const topLeftEnd) const
+	std::vector<TilePosition> AStar::pathfind(BWAPI::TilePosition topLeftStart, BWAPI::TilePosition const topLeftEnd) const
 	{
-		struct mapSize
-		{
-			int x;
-			int y;
-		};
 		const auto manhattanDistance = [](BWAPI::TilePosition const &a, BWAPI::TilePosition const &b) {
 			return abs(a.x - b.x) + abs(a.y - b.y);
 		};
 
 		const std::vector<BWAPI::TilePosition> deltas{ {0, 1}, {0, -1}, {1, 0}, {-1, 0} };
-		const mapSize mapSize{ Broodwar->mapWidth() ,Broodwar->mapHeight() };
-		const auto totalSize = mapSize.x * mapSize.y;
-		set<TilePosition> visitedPPAP;
+		const TilePosition mapSize{ Broodwar->mapWidth() ,Broodwar->mapHeight() };
+		set<TilePosition> visited;
 		std::priority_queue<QueueObj> queue;
 		set<TilePosition> realPath;
 		queue.emplace(topLeftStart, 0, 0);
-		visitedPPAP.insert(topLeftStart);
 		while (!queue.empty()) {
-			auto const current = queue.top();
+			const auto current = queue.top();
 			queue.pop();
-
 			if (current.pos == topLeftEnd) {
-				return current.path;
+				vector<TilePosition> path;
+				auto node = current;
+				while (node.father != nullptr)
+				{
+					path.push_back(node.pos);
+					node = *node.father;
+				}
+
+				return path;
 			}
 
-			if (visitedPPAP.find(current.pos) != visitedPPAP.end()) continue;
-
-			visitedPPAP.insert(current.pos);
+			if (visited.find(current.pos) != visited.end()) continue;
+			visited.insert(current.pos);
 			for (auto const &d : deltas) {
 				auto const next = current.pos + d;
 				if (0 <= next.x && next.x < mapSize.x
 					&& 0 <= next.y && next.y < mapSize.y) {
-					if (visitedPPAP.find(next) != visitedPPAP.end()) continue;
+					if (visited.find(next) != visited.end()) continue;
 					if (!next.isValid() || BWEB::Map::Instance().overlapGrid[next.x][next.y] > 0 || !BWEB::Map::isWalkable(next)) continue;
 					if (BWEB::Map::Instance().overlapsCurrentWall(next) != UnitTypes::None) continue;
 					if (BWEM::Map::Instance().GetArea(next) && BWEM::Map::Instance().GetArea(next) != BWEM::Map::Instance().GetArea(TilePosition(topLeftStart)) && BWEM::Map::Instance().GetArea(next) != BWEM::Map::Instance().GetArea(TilePosition(topLeftEnd))) continue;
-					QueueObj temp(current.pos, current.dist + 1, current.dist + manhattanDistance(next, topLeftEnd) + 1);
-					temp.path = current.path;
+					QueueObj temp(next, current.father, current.dist + 1, current.dist + manhattanDistance(next, topLeftEnd) + 1);
 					queue.emplace(temp);
 				}
 			}
 		}
-		return realPath;
+		return {};
 	}
 
 	Node::Node(const TilePosition tile, Node *newParent)

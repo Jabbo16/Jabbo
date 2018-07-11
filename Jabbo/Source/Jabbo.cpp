@@ -27,13 +27,13 @@ void JabboModule::onStart()
 	MapPrinter::Initialize(&bwem);
 
 	mapBweb.onStart();
-	//	std::vector<UnitType> wall = { UnitTypes::Terran_Supply_Depot, UnitTypes::Terran_Barracks, UnitTypes::Terran_Bunker };
-	//
-	//	const auto start = chrono::high_resolution_clock::now();
-	//	mapBweb.createWall(wall, mapBweb.getNaturalArea(), mapBweb.getNaturalChoke());
-	//	const auto dur = std::chrono::duration <double, std::milli>(std::chrono::high_resolution_clock::now() - start).count();
+	std::vector<UnitType> wall = { UnitTypes::Terran_Supply_Depot, UnitTypes::Terran_Barracks, UnitTypes::Terran_Bunker };
 
-//	Broodwar << "A* with potato time:" << dur << endl;
+	const auto start = chrono::high_resolution_clock::now();
+	mapBweb.createWall(wall, mapBweb.getNaturalArea(), mapBweb.getNaturalChoke(), UnitTypes::Zerg_Zergling);
+	const auto dur = std::chrono::duration <double, std::milli>(std::chrono::high_resolution_clock::now() - start).count();
+
+	Broodwar << "A* with potato time:" << dur << endl;
 	mapBweb.findBlocks();
 	UnitInfoManager::getInstance().onStart();
 	Broodwar->enableFlag(Flag::UserInput);
@@ -44,6 +44,9 @@ void JabboModule::onStart()
 	ResourceManager::initBaseResources();
 	RecollectManager::initTree();
 	BuildingManager::initTree();
+	const Position test{ 64,64 };
+	const auto testW = WalkPosition(test);
+	Broodwar->sendText("%d, %d", testW.x, testW.y);
 	// Set the command optimization level so that common commands can be grouped and reduce the bot's APM (Actions Per Minute).
 	Broodwar->setCommandOptimizationLevel(2);
 }

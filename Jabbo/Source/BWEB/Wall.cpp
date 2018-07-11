@@ -263,26 +263,26 @@ namespace BWEB
 		auto currentPath = AStar().pathfind(startTile, endTile);
 
 		currentPathSize = static_cast<double>(currentPath.size());
+		Instance().pathWall = currentPath;
+		//		if (currentPath.find(endTile) == currentPath.end())
+		//		{
+		//			currentHole = TilePositions::None;
+		//			currentPathSize = DBL_MAX;
+		//			return;
+		//		}
 
-		if (currentPath.find(endTile) == currentPath.end())
-		{
-			currentHole = TilePositions::None;
-			currentPathSize = DBL_MAX;
-			return;
-		}
+				// Quick check to see if the path contains our end point
+		//		if (find(currentPath.begin(), currentPath.end(), endTile) == currentPath.end())
+		//		{
+		//			currentHole = TilePositions::None;
+		//			currentPathSize = DBL_MAX;
+		//			return;
+		//		}
 
-		// Quick check to see if the path contains our end point
-//		if (find(currentPath.begin(), currentPath.end(), endTile) == currentPath.end())
-//		{
-//			currentHole = TilePositions::None;
-//			currentPathSize = DBL_MAX;
-//			return;
-//		}
-
-		// Otherwise iterate all tiles and locate the hole
+				// Otherwise iterate all tiles and locate the hole
 		for (auto& tile : currentPath)
 		{
-			double closestGeo = DBL_MAX;
+			auto closestGeo = DBL_MAX;
 			for (auto& geo : choke->Geometry())
 			{
 				if (overlapsCurrentWall(tile) == UnitTypes::None && TilePosition(geo) == tile && tile.getDistance(startTile) < closestGeo)

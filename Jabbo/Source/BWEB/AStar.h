@@ -18,10 +18,15 @@ namespace BWEB
 		uint getScore() const;
 	};
 	struct QueueObj {
-		QueueObj(BWAPI::TilePosition const pos, int const dist, int const effectiveDist) : pos{ pos }, dist{ dist }, effectiveDist{ effectiveDist } { }
+		QueueObj(BWAPI::TilePosition const pos, QueueObj* father, int const dist, int const effectiveDist) : pos{ pos }, father(father), dist{ dist }, effectiveDist{ effectiveDist }
+		{
+		}
+		QueueObj(BWAPI::TilePosition const pos, int const dist, int const effectiveDist) : pos{ pos }, father(nullptr), dist{ dist }, effectiveDist{ effectiveDist }
+		{
+		}
 		mutable BWAPI::TilePosition pos;
+		mutable  QueueObj *father;
 		mutable int dist;
-		mutable set<TilePosition> path{};
 		int effectiveDist;
 
 		bool operator<(QueueObj const &other) const {
@@ -36,7 +41,7 @@ namespace BWEB
 		uint manhattan(TilePosition, TilePosition) const;
 
 	public:
-		std::set<TilePosition> pathfind(BWAPI::TilePosition topLeftStart, BWAPI::TilePosition const topLeftEnd) const;
+		std::vector<TilePosition> pathfind(BWAPI::TilePosition topLeftStart, BWAPI::TilePosition const topLeftEnd) const;
 		AStar();
 		vector<TilePosition> findPath(BWEM::Map&, BWEB::Map&, TilePosition, TilePosition, bool);
 	};

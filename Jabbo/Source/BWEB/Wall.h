@@ -2,7 +2,7 @@
 #include "BWEB.h"
 
 namespace BWEB
-{	
+{
 	using namespace BWAPI;
 	using namespace std;
 
@@ -13,7 +13,7 @@ namespace BWEB
 		set<TilePosition> defenses, small, medium, large;
 		const BWEM::Area * area;
 		const BWEM::ChokePoint * choke;
-		
+
 	public:
 		Wall(const BWEM::Area *, const BWEM::ChokePoint *);
 		void insertDefense(TilePosition here) { defenses.insert(here); }
@@ -23,7 +23,7 @@ namespace BWEB
 
 		const BWEM::ChokePoint * getChokePoint() const { return choke; }
 		const BWEM::Area * getArea() const { return area; }
-		
+
 		// Returns the defense locations associated with this Wall
 		set<TilePosition> getDefenses() const { return defenses; }
 
@@ -41,5 +41,5 @@ namespace BWEB
 
 		// Returns the TilePosition belonging to small UnitType buildings
 		set<TilePosition> smallTiles() const { return small; }
-	};	
+	};
 }

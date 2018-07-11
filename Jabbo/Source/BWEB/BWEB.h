@@ -18,6 +18,9 @@ namespace BWEB
 	class Station;
 	class Map
 	{
+	public:
+
+		vector<TilePosition> pathWall{};
 	private:
 
 		vector<Station> stations;
