@@ -8,19 +8,12 @@
 // Dynamic block addition (insert UnitTypes, get block) - NEW MEDIUM
 // Improve logic for mirroring blocks - NEW LOW
 // Code cleanup - NEW LOW
-// Limit number of building sizes per area - ONGOING LOW
-
-// Completed Changes:
-// Re-add Doors to Walls - COMPLETE
-// Improve "Overlap functions", they are probably fairly expensive - COMPLETE
-// Changed Terran stations to reserve room for CC addons - COMPLETE
-// Reduce number of tiles searched in wall tight search to only buildable tiles - COMPLETE
-// Final check on wall tight walls needs to check for tightness against terrain - NFG
+// Defense sizes - NEW LOW
 
 namespace BWEB
 {
 	Map::Map(BWEM::Map& map)
-		: map(map)
+		: mapBWEM(map)
 	{
 	}
 
@@ -82,13 +75,13 @@ namespace BWEB
 	{
 		mainTile = Broodwar->self()->getStartLocation();
 		mainPosition = static_cast<Position>(mainTile) + Position(64, 48);
-		mainArea = map.GetArea(mainTile);
+		mainArea = mapBWEM.GetArea(mainTile);
 	}
 
 	void Map::findNatural()
 	{
 		auto distBest = DBL_MAX;
-		for (auto& area : map.Areas())
+		for (auto& area : mapBWEM.Areas())
 		{
 			for (auto& base : area.Bases())
 			{
@@ -119,7 +112,7 @@ namespace BWEB
 	void Map::findNaturalChoke()
 	{
 		// Exception for maps with a natural behind the main such as Crossing Fields
-		if (getGroundDistance(mainPosition, map.Center()) < getGroundDistance(Position(naturalTile), map.Center()))
+		if (getGroundDistance(mainPosition, mapBWEM.Center()) < getGroundDistance(Position(naturalTile), mapBWEM.Center()))
 		{
 			naturalChoke = mainChoke;
 			return;
@@ -131,7 +124,7 @@ namespace BWEB
 		for (auto& area : naturalArea->AccessibleNeighbours())
 		{
 			auto center = area->Top();
-			const auto dist = Position(center).getDistance(map.Center());
+			const auto dist = Position(center).getDistance(mapBWEM.Center());
 			if (center.isValid() && dist < distBest)
 				second = area, distBest = dist;
 		}
@@ -151,8 +144,7 @@ namespace BWEB
 
 	void Map::draw()
 	{
-		for (auto& block : blocks)
-		{
+		for (auto& block : blocks) {
 			for (auto& tile : block.SmallTiles())
 				Broodwar->drawBoxMap(Position(tile), Position(tile) + Position(65, 65), Broodwar->self()->getColor());
 			for (auto& tile : block.MediumTiles())
@@ -161,15 +153,13 @@ namespace BWEB
 				Broodwar->drawBoxMap(Position(tile), Position(tile) + Position(129, 97), Broodwar->self()->getColor());
 		}
 
-		for (auto& station : stations)
-		{
+		for (auto& station : stations) {
 			for (auto& tile : station.DefenseLocations())
 				Broodwar->drawBoxMap(Position(tile), Position(tile) + Position(65, 65), Broodwar->self()->getColor());
 			Broodwar->drawBoxMap(Position(station.BWEMBase()->Location()), Position(station.BWEMBase()->Location()) + Position(129, 97), Broodwar->self()->getColor());
 		}
 
-		for (auto& wall : walls)
-		{
+		for (auto& wall : walls) {
 			for (auto& tile : wall.smallTiles())
 				Broodwar->drawBoxMap(Position(tile), Position(tile) + Position(65, 65), Broodwar->self()->getColor());
 			for (auto& tile : wall.mediumTiles())
@@ -179,25 +169,25 @@ namespace BWEB
 			for (auto& tile : wall.getDefenses())
 				Broodwar->drawBoxMap(Position(tile), Position(tile) + Position(65, 65), Broodwar->self()->getColor());
 			Broodwar->drawBoxMap(Position(wall.getDoor()), Position(wall.getDoor()) + Position(33, 33), Broodwar->self()->getColor(), true);
+			Broodwar->drawCircleMap(Position(wall.getCentroid()) + Position(16, 16), 8, Broodwar->self()->getColor(), true);
 		}
-		for (const auto tile : pathWall)
+
+		for (int x = 0; x < Broodwar->mapWidth(); x++)
 		{
-			Broodwar->drawBoxMap(Position(tile), Position(tile) + Position(32, 32), Colors::Red);
+			for (int y = 0; y < Broodwar->mapHeight(); y++)
+			{
+				TilePosition t(x, y);
+				//if (visited[UnitTypes::Protoss_Gateway].location[t.x][t.y] == 1)
+				//	Broodwar->drawBoxMap(Position(t), Position(t) + Position(33, 33), Colors::Yellow, false);
+				if (reserveGrid[x][y] >= 1)
+					Broodwar->drawBoxMap(Position(t), Position(t) + Position(33, 33), Colors::Black, false);
+			}
 		}
-		//for (int x = 0; x < Broodwar->mapWidth()*4; x++)
-		//{
-		//	for (int y = 0; y < Broodwar->mapHeight()*4; y++)
-		//	{
-		//		WalkPosition t(x, y);
-		//		if (!Broodwar->isWalkable(t))
-		//			Broodwar->drawBoxMap(Position(t), Position(t) + Position(9, 9), Broodwar->self()->getColor(), true);
-		//	}
-		//}
 
 		//Broodwar->drawCircleMap(Position(startTile), 8, Colors::Green, true);
 		//Broodwar->drawCircleMap(Position(endTile), 8, Colors::Orange, true);
 		//Broodwar->drawCircleMap(naturalPosition, 8, Colors::Red, true);
-		////Broodwar->drawCircleMap(Position(mainChoke->Center()), 8, Colors::Green, true);
+		//Broodwar->drawCircleMap(Position(mainChoke->Center()), 8, Colors::Green, true);
 		//Broodwar->drawCircleMap(Position(naturalChoke->Center()), 8, Colors::Yellow, true);
 	}
 
@@ -205,10 +195,10 @@ namespace BWEB
 	double Map::getGroundDistance(PositionType start, PositionType end)
 	{
 		auto dist = 0.0;
-		if (!start.isValid() || !end.isValid() || !map.GetArea(WalkPosition(start)) || !map.GetArea(WalkPosition(end)))
+		if (!start.isValid() || !end.isValid() || !mapBWEM.GetArea(WalkPosition(start)) || !mapBWEM.GetArea(WalkPosition(end)))
 			return DBL_MAX;
 
-		for (auto& cpp : map.GetPath(start, end))
+		for (auto& cpp : mapBWEM.GetPath(start, end))
 		{
 			auto center = Position{ cpp->Center() };
 			dist += start.getDistance(center);
@@ -224,18 +214,45 @@ namespace BWEB
 		auto tileBest = TilePositions::Invalid;
 
 		// Search through each block to find the closest block and valid position
-		for (auto& block : blocks)
-		{
+		for (auto& block : blocks) {
 			set<TilePosition> placements;
 			if (type.tileWidth() == 4) placements = block.LargeTiles();
 			else if (type.tileWidth() == 3) placements = block.MediumTiles();
 			else placements = block.SmallTiles();
 
-			for (auto& tile : placements)
+			for (auto& tile : placements) {
+				const auto dist = tile.getDistance(searchCenter);
+				if (dist < distBest && isPlaceable(type, tile))
+					distBest = dist, tileBest = tile;
+			}
+		}
+		return tileBest;
+	}
+
+	TilePosition Map::getDefBuildPosition(UnitType type, const TilePosition searchCenter)
+	{
+		auto distBest = DBL_MAX;
+		auto tileBest = TilePositions::Invalid;
+
+		// Search through each wall to find the closest valid TilePosition
+		for (auto& wall : walls)
+		{
+			for (auto& tile : wall.getDefenses())
 			{
-				const auto distToPos = tile.getDistance(searchCenter);
-				if (distToPos < distBest && isPlaceable(type, tile))
-					distBest = distToPos, tileBest = tile;
+				const auto dist = tile.getDistance(searchCenter);
+				if (dist < distBest && isPlaceable(type, tile))
+					distBest = dist, tileBest = tile;
+			}
+		}
+
+		// Search through each station to find the closest valid TilePosition
+		for (auto& station : stations)
+		{
+			for (auto& tile : station.DefenseLocations())
+			{
+				const auto dist = tile.getDistance(searchCenter);
+				if (dist < distBest && isPlaceable(type, tile))
+					distBest = dist, tileBest = tile;
 			}
 		}
 		return tileBest;
@@ -245,17 +262,24 @@ namespace BWEB
 	{
 		// Placeable is valid if buildable and not overlapping neutrals
 		// Note: Must check neutrals due to the terrain below them technically being buildable
-		const auto creepCheck = type.requiresCreep() ? 1 : 0;
-		for (auto x = location.x; x < location.x + type.tileWidth(); x++)
-		{
-			for (auto y = location.y; y < location.y + type.tileHeight() + creepCheck; y++)
-			{
+		const auto creepCheck = type.requiresCreep() ? true : false;	
+		for (auto x = location.x; x < location.x + type.tileWidth(); x++){
+
+			if (creepCheck) {
+				TilePosition tile(x, location.y + 2);
+				if (!Broodwar->isBuildable(tile))
+					return false;
+			}
+
+			for (auto y = location.y; y < location.y + type.tileHeight(); y++)	{
 				TilePosition tile(x, y);
 				if (!tile.isValid() || !Broodwar->isBuildable(tile)) return false;
 				if (usedTiles.find(tile) != usedTiles.end()) return false;
+				if (reserveGrid[x][y] > 0) return false;
 				if (type.isResourceDepot() && !Broodwar->canBuildHere(tile, type)) return false;
 			}
 		}
+
 		return true;
 	}
 

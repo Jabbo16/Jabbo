@@ -1,7 +1,7 @@
 #pragma once
 #include <BWAPI.h>
 #include "BaseManager.hpp"
-#include"BWEM 1.4.1/src/bwem.h"
+#include <bwem.h>
 #include <optional>
 #include <UnitInfoManager.h>
 

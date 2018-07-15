@@ -8,7 +8,8 @@
 #include "ResourceManager.hpp"
 #include "TrainingManager.hpp"
 #include "BWEB/BWEB.h"
-#include <chrono>
+#include "SimulationManager.hpp"
+
 using namespace BWAPI;
 using namespace scutil;
 using namespace Filter;
@@ -19,21 +20,18 @@ namespace { auto & bwem = Map::Instance(); }
 namespace { auto & mapBweb = BWEB::Map::Instance(); }
 using namespace Jabbo;
 bool scouting = false;
+SimulationManager sim{};
+
 void JabboModule::onStart()
 {
-	bwem.Initialize();
+	bwem.Initialize(BroodwarPtr);
 	bwem.EnableAutomaticPathAnalysis();
 	bwem.FindBasesForStartingLocations();
-	MapPrinter::Initialize(&bwem);
 
 	mapBweb.onStart();
 	std::vector<UnitType> wall = { UnitTypes::Terran_Supply_Depot, UnitTypes::Terran_Barracks, UnitTypes::Terran_Bunker };
 
-	const auto start = chrono::high_resolution_clock::now();
-	mapBweb.createWall(wall, mapBweb.getNaturalArea(), mapBweb.getNaturalChoke(), UnitTypes::Zerg_Zergling);
-	const auto dur = std::chrono::duration <double, std::milli>(std::chrono::high_resolution_clock::now() - start).count();
-
-	Broodwar << "A* with potato time:" << dur << endl;
+	//mapBweb.createWall(wall, mapBweb.getNaturalArea(), mapBweb.getNaturalChoke(), UnitTypes::Zerg_Zergling);
 	mapBweb.findBlocks();
 	UnitInfoManager::getInstance().onStart();
 	Broodwar->enableFlag(Flag::UserInput);
@@ -63,12 +61,14 @@ void JabboModule::onFrame()
 {
 	// Called once every game frame
 	// mapBweb.draw();
+	sim.onFrameSim();
+	sim.drawClusters();
 
 	if (Broodwar->getFrameCount() % Broodwar->getLatencyFrames() != 0)
 	{
 		// activates the onFrame of UnitInfoManager
 		UnitInfoManager::getInstance().onFrame();
-		DrawManager::onFrame();
+		DrawManager::onFrame({});
 		return;
 	}
 
@@ -82,7 +82,7 @@ void JabboModule::onFrame()
 	BuildingManager::onFrame();
 	RecollectManager::onFrame();
 	TrainingManager::onFrame();
-	DrawManager::onFrame();
+	DrawManager::onFrame(sim);
 	// Prevent spamming by only running our onFrame once every number of latency frames.
 	// Latency frames are the number of frames before commands are processed.
 }

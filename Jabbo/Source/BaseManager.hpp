@@ -2,7 +2,7 @@
 
 #include <BWAPI.h>
 #include <set>
-#include"BWEM 1.4.1/src/bwem.h"
+#include <bwem.h>
 
 namespace Jabbo {
 	using namespace BWAPI;

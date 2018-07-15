@@ -19,6 +19,7 @@ namespace Jabbo {
 		return instance;
 	}
 
+	// Borrowed from McRave 2017, temporal method so the bot can train different units just for testing
 	void TrainingManager::updateScoring()
 	{
 		// Unit score based off enemy composition
@@ -33,6 +34,7 @@ namespace Jabbo {
 		}
 	}
 
+	// Borrowed from McRave 2017, temporal method so the bot can train different units just for testing
 	void TrainingManager::updateProtossUnitScore(UnitType unit, const int count)
 	{
 		switch (unit)

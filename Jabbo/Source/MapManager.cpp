@@ -1,5 +1,5 @@
 #include "MapManager.hpp"
-#include "BWEM 1.4.1/src/bwem.h"
+#include <bwem.h>
 using namespace BWAPI;
 namespace { auto & bwem = BWEM::Map::Instance(); }
 

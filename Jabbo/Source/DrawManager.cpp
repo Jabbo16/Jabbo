@@ -6,6 +6,7 @@
 #include "InfoManager.hpp"
 #include "EconManager.hpp"
 #include "BWEB/BWEB.h"
+#include "SimulationManager.hpp"
 using namespace scutil;
 namespace { auto& mapBweb = BWEB::Map::Instance(); }
 namespace Jabbo {
@@ -18,7 +19,7 @@ namespace Jabbo {
 		return instance;
 	}
 
-	void DrawManager::onFrame()
+	void DrawManager::onFrame(SimulationManager s)
 	{
 		mapBweb.draw();
 
@@ -100,8 +101,6 @@ namespace Jabbo {
 		// Display the game frame rate as text in the upper left area of the screen
 		Broodwar->drawTextScreen(200, 0, "FPS: %d", Broodwar->getFPS());
 		Broodwar->drawTextScreen(200, 20, "Average FPS: %f", Broodwar->getAverageFPS());
-		Broodwar->drawTextScreen(200, 60, "%s", Broodwar->getLastError().c_str());
-		Broodwar->drawTextScreen(200, 80, "MGPF: %f", EconManager::mineralGainPerFrame());
 		if (!BuildOrderManager::instance().myBo.itemsBO.empty())
 		{
 			if (std::holds_alternative<UnitType>(BuildOrderManager::instance().myBo.itemsBO[0].type)) Broodwar->drawTextScreen(200, 40, "Next Item in BO Queue: %s at %d supply",
@@ -116,6 +115,9 @@ namespace Jabbo {
 		{
 			Broodwar->drawTextScreen(200, 40, "Next Item in BO Queue: None");
 		}
+		Broodwar->drawTextScreen(200, 60, "%s", Broodwar->getLastError().c_str());
+		Broodwar->drawTextScreen(200, 80, "MGPF: %f", EconManager::mineralGainPerFrame());
+		Broodwar->drawTextScreen(200, 100, "SimTime(ms): %i", s.time);
 	}
 
 	void DrawManager::drawUnit(const Unit &unit, const Color color)
