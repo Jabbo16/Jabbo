@@ -23,9 +23,9 @@ namespace Jabbo {
 		return pair<double, double>{ modeX, modeY };
 	}
 
-	Clustering::Clustering(vector<Unit> units)
+	Clustering::Clustering(const vector<Unit>& units)
 	{
-		for (auto u : units)
+		for (auto& u : units)
 		{
 			if (!u->isVisible() || !u->isCompleted()) continue;
 			const auto p = u->getPosition();
@@ -45,7 +45,7 @@ namespace Jabbo {
 	vector<pair<double, double>> Clustering::getNeighbours(const Unit unit, const double pointX, const double pointY)
 	{
 		vector<pair<double, double>> neighbours{};
-		for (auto u : points_) {
+		for (const auto& u : points_) {
 			if (unit == u.unit) continue;
 			const auto dist = euclideanDistanceSquared(pointX, pointY, u.x, u.y);
 			if (dist <= radius_) neighbours.emplace_back(pair<double, double>(u.x, u.y));
@@ -89,7 +89,7 @@ namespace Jabbo {
 				points_[i] = UnitPos(aux.unit, newPointX, newPointY);
 			}
 		}
-		for (auto i : points_) {
+		for (auto& i : points_) {
 			unsigned int c = 0;
 			for (const auto& cluster : clusters) {
 				if (euclideanDistanceSquared(i.x, i.y, cluster.modeX, cluster.modeY) <= 400.0 * 400.0) break;

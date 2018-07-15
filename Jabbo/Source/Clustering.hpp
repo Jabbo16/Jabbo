@@ -45,12 +45,13 @@ namespace Jabbo {
 	private:
 		const double radius_ = pow(UnitTypes::Terran_Siege_Tank_Siege_Mode.groundWeapon().maxRange(), 2);
 		vector<UnitPos> points_{};
+
 		double gaussianKernel(double distanceSquared, double bandwidth) const;
 		double euclideanDistanceSquared(double point1X, double point1Y, double point2X, double point2Y) const;
 		vector<pair<double, double>> getNeighbours(Unit unit, double pointX, double pointY);
 	public:
 		long time{};
-		explicit Clustering(vector<Unit> units);
+		explicit Clustering(const vector<Unit>& units);
 		vector<Cluster> run();
 	};
 }

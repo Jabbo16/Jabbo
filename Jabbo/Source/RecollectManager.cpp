@@ -20,7 +20,7 @@ namespace Jabbo {
 			{
 				try
 				{
-					for (auto unit : instance().workerIdle)
+					for (const auto& unit : instance().workerIdle)
 					{
 						if (unit->getLastCommandFrame() != Broodwar->getFrameCount())
 						{
@@ -55,7 +55,7 @@ namespace Jabbo {
 								return Status::Failure;
 							}
 							Unit closestMineral = nullptr;
-							for (const auto mineral : ResourceManager::instance().minerals)
+							for (const auto& mineral : ResourceManager::instance().minerals)
 							{
 								if (mineral.second >= 2)
 								{
@@ -104,7 +104,7 @@ namespace Jabbo {
 								return Status::Failure;
 							}
 							Unit chosenRefinery = nullptr;
-							for (const auto gas : ResourceManager::instance().gas)
+							for (const auto& gas : ResourceManager::instance().gas)
 							{
 								if (gas.second >= 3)
 								{
@@ -150,7 +150,7 @@ namespace Jabbo {
 
 	void RecollectManager::mineralLocking()
 	{
-		for (const auto m : instance().workerMineral)
+		for (const auto& m : instance().workerMineral)
 		{
 			if (m.first->getLastCommandFrame() == Broodwar->getFrameCount()) continue;
 			if (m.first->isIdle()) m.first->gather(m.second);

@@ -14,13 +14,13 @@ namespace Jabbo {
 	}
 
 	std::pair<double, double> operator +(const std::pair<double, double>& x, const std::pair<double, double>& y) {
-		return std::make_pair(x.first + y.first, x.second + y.second);
+		return pair<double, double>(x.first + y.first, x.second + y.second);
 	}
 
 	pair<double, double> MapManager::sumPosition(const vector<pair<double, double>>& vectors)
 	{
 		pair<double, double> sum{};
-		for (const auto vector : vectors)
+		for (const auto& vector : vectors)
 		{
 			sum = sum + vector;
 		}
@@ -33,7 +33,7 @@ namespace Jabbo {
 		if (!start.isValid() || !end.isValid() || !bwem.GetArea(WalkPosition(start)) || !bwem.GetArea(WalkPosition(end)))
 			return DBL_MAX;
 
-		for (auto& cpp : bwem.GetPath(start, end))
+		for (const auto& cpp : bwem.GetPath(start, end))
 		{
 			const auto center = Position{ cpp->Center() };
 			dist += start.getDistance(center);
@@ -53,7 +53,7 @@ namespace Jabbo {
 		vector<pair<double, double>> vectors{};
 
 		auto minDistance = DBL_MAX;
-		for (const auto enemy : enemiesToKite) {
+		for (const auto& enemy : enemiesToKite) {
 			const auto enemyPosition = enemy.lastPosition;
 			auto difference = ownPosition - enemyPosition;
 			pair<double, double> unitV{ difference.x , difference.y };

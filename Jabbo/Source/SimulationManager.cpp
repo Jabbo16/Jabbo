@@ -9,7 +9,7 @@ namespace Jabbo {
 	{
 		// Friendly Clusters
 		vector<Unit> myUnits{};
-		for (auto u : UnitInfoManager::getInstance().getUnitDataOfPlayer(Broodwar->self()).getUnits())
+		for (const auto& u : UnitInfoManager::getInstance().getUnitDataOfPlayer(Broodwar->self()).getUnits())
 		{
 			if (u.first->isCompleted() && u.second.type.canAttack() && !u.second.type.isWorker())
 			{
@@ -19,7 +19,7 @@ namespace Jabbo {
 		if (myUnits.empty()) return;
 		// Enemy Clusters
 		vector<Unit> enemyUnits{};
-		for (auto u : UnitInfoManager::getInstance().getUnitDataOfPlayer(Broodwar->enemy()).getUnits())
+		for (const auto& u : UnitInfoManager::getInstance().getUnitDataOfPlayer(Broodwar->enemy()).getUnits())
 		{
 			if (u.first->isCompleted() && u.second.type.canAttack() && (!u.second.type.isWorker() || u.first->isAttacking()))
 			{
@@ -51,7 +51,7 @@ namespace Jabbo {
 	}
 	void SimulationManager::createSimInfos()
 	{
-		for (auto ally : friendly_) {
+		for (const auto& ally : friendly_) {
 			if (ally.units.empty()) continue;
 			SimInfo aux{};
 			for (auto enemy : enemies_) {
@@ -66,7 +66,7 @@ namespace Jabbo {
 			}
 		}
 		vector<SimInfo> newSims{};
-		for (auto s : simulations_) {
+		for (const auto& s : simulations_) {
 			SimInfo air{};
 			SimInfo ground{};
 			for (auto u : s.allies) {
@@ -76,7 +76,7 @@ namespace Jabbo {
 			const auto emptyAir = air.allies.empty();
 			const auto emptyGround = ground.allies.empty();
 			if (emptyAir && emptyGround) continue;
-			for (auto u : s.enemies) {
+			for (const auto& u : s.enemies) {
 				if (u->getType().airWeapon() != WeaponTypes::None) air.enemies.emplace(u);
 				if (u->getType().groundWeapon() != WeaponTypes::None) ground.enemies.emplace(u);
 			}
@@ -94,14 +94,14 @@ namespace Jabbo {
 
 	void SimulationManager::doSim()
 	{
-		for (auto s : simulations_) {
+		for (auto& s : simulations_) {
 			fap.clear();
-			for (auto u : s.allies) {
+			for (const auto& u : s.allies) {
 				FastAPproximation::FAPUnit fU(u);
 				fap.addUnitPlayer1(fU);
 				s.stateBefore.first->emplace_back(fU);
 			}
-			for (auto u : s.enemies) {
+			for (const auto& u : s.enemies) {
 				if (!u->isDetected()) {
 					s.lose = true;
 					break;
@@ -138,7 +138,7 @@ namespace Jabbo {
 		Broodwar->drawCircleMap(centroid, 5, color, true);
 		auto idS = std::to_string(id);
 		Broodwar->drawTextMap(centroid + Position(0, 5), idS.c_str());
-		for (auto u : c.units) Broodwar->drawLineMap(u->getPosition(), centroid, color);
+		for (const auto& u : c.units) Broodwar->drawLineMap(u->getPosition(), centroid, color);
 	}
 
 	SimulationManager::SimulationManager()
@@ -148,7 +148,7 @@ namespace Jabbo {
 	{
 		fap.clear();
 		fap.addUnitPlayer1(FastAPproximation::FAPUnit(scouter));
-		for (const auto enemy : enemies)
+		for (const auto& enemy : enemies)
 		{
 			fap.addUnitPlayer2(FastAPproximation::FAPUnit(enemy));
 		}
@@ -197,7 +197,7 @@ namespace Jabbo {
 
 	SimInfo SimulationManager::getSimulation(const Unit unit, const simType type)
 	{
-		for (auto s : simulations_) {
+		for (const auto& s : simulations_) {
 			if (s.type == type && s.allies.find(unit) != s.allies.end()) return s;
 		}
 		return SimInfo();
@@ -205,7 +205,7 @@ namespace Jabbo {
 
 	SimInfo SimulationManager::getSimulation(const Unit unit, const bool enemy)
 	{
-		for (auto s : simulations_) {
+		for (const auto& s : simulations_) {
 			if (!enemy && s.allies.find(unit) != s.allies.end()) return s;
 			if (enemy && s.enemies.find(unit) != s.enemies.end()) return s;
 		}

@@ -6,7 +6,7 @@ namespace { auto& mapBweb = BWEB::Map::Instance(); }
 namespace Jabbo {
 	Base InfoManager::getBaseFromTile(const TilePosition tile)
 	{
-		for (auto &base : BaseManager::instance().bases)
+		for (const auto &base : BaseManager::instance().bases)
 		{
 			if (base.tile == tile)
 			{

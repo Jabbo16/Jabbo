@@ -42,7 +42,7 @@ namespace Jabbo {
 
 	void ResourceManager::initBaseResources()
 	{
-		for (auto &base : BaseManager::instance().bases)
+		for (const auto& base : BaseManager::instance().bases)
 		{
 			if (base.owner.player == Broodwar->self())
 			{

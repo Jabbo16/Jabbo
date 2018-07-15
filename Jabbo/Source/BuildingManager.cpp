@@ -23,7 +23,7 @@ namespace Jabbo
 			{
 				continue;
 			}
-			for (const auto g : base.geysers)
+			for (const auto& g : base.geysers)
 			{
 				if (!g.second)
 				{
@@ -56,7 +56,7 @@ namespace Jabbo
 					instance().unitTransforming_.emplace(pair<Unit, BuildInfo>(unit, builder.second));
 					RecollectManager::instance().workerIdle.emplace(builder.first);
 				}
-				for (const auto type : instance().buildingsResourcesQueue)
+				for (const auto& type : instance().buildingsResourcesQueue)
 				{
 					if (unit->getType() == type)
 					{
@@ -142,7 +142,7 @@ namespace Jabbo
 				return;
 			}
 			// If worker is in workerTask
-			for (const auto task : instance().workerTask)
+			for (const auto& task : instance().workerTask)
 			{
 				if (task.second == unit)
 				{
@@ -255,20 +255,20 @@ namespace Jabbo
 						// Supply no Zerg
 						if (Broodwar->self()->supplyTotal() / 2 - Broodwar->self()->supplyUsed() / 2 <= 2 && InfoManager::instance().myRace != Races::Zerg)
 						{
-							for (const auto item : instance().buildingsResourcesQueue)
+							for (const auto& item : instance().buildingsResourcesQueue)
 							{
 								if (item == InfoManager::instance().myRace.getSupplyProvider()) return Status::Failure;
 							}
 							if (InfoManager::instance().myRace == Races::Terran)
 							{
-								for (const auto task : instance().workerTask)
+								for (const auto& task : instance().workerTask)
 								{
 									if (task.first->getType() == InfoManager::instance().myRace.getSupplyProvider()) return Status::Failure;
 								}
 							}
 							else
 							{
-								for (const auto transforming : instance().unitTransforming_)
+								for (const auto& transforming : instance().unitTransforming_)
 								{
 									if (transforming.first->getType() == InfoManager::instance().myRace.getSupplyProvider()) return Status::Failure;
 								}

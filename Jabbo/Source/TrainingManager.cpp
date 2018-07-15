@@ -24,7 +24,7 @@ namespace Jabbo {
 	{
 		// Unit score based off enemy composition
 		auto enemyUnitInfo = UnitInfoManager::getInstance().getUnitDataOfPlayer(Broodwar->enemy());
-		for (const auto t : enemyUnitInfo.getUnits())
+		for (const auto& t : enemyUnitInfo.getUnits())
 		{
 			// For each type, add a score to production based on the unit count divided by our current unit count
 			if (InfoManager::instance().myRace == Races::Protoss)
@@ -162,7 +162,7 @@ namespace Jabbo {
 		auto myUnitData = UnitInfoManager::getInstance().getUnitDataOfPlayer(Broodwar->self());
 		if (EconManager::iHaveMoney(InfoManager::instance().myRace.getWorker()) && unsigned int(Broodwar->self()->allUnitCount(InfoManager::instance().myRace.getWorker())) < unsigned int(ResourceManager::instance().minerals.size() * 2 + ResourceManager::instance().gas.size() + 1))
 		{
-			for (auto u : myUnitData.getUnits())
+			for (const auto& u : myUnitData.getUnits())
 			{
 				if (u.second.type.isResourceDepot() && !u.first->isTraining())
 				{
@@ -209,7 +209,7 @@ namespace Jabbo {
 		instance().updateScoring();
 		Unit building = nullptr;
 		auto highestType = UnitTypes::None;
-		for (auto &b : myUnitData.getUnits())
+		for (const auto& b : myUnitData.getUnits())
 		{
 			if (!b.second.type.isBuilding() || b.second.type.isResourceDepot() || !b.first->isIdle()) {
 				continue;
@@ -242,7 +242,7 @@ namespace Jabbo {
 	bool TrainingManager::hasUnitTypeRequirement(UnitType unitType)
 	{
 		auto requirements = unitType.requiredUnits();
-		for (const auto requirement : requirements)
+		for (const auto& requirement : requirements)
 		{
 			auto found = false;
 			for (const auto building : UnitInfoManager::getInstance().getUnitDataOfPlayer(Broodwar->self()).getUnits())

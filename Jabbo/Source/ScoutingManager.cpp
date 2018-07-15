@@ -64,14 +64,14 @@ namespace Jabbo
 
 	pair<Unit, Unit> ScoutingManager::chooseWorker()
 	{
-		for (auto unit : RecollectManager::instance().workerIdle)
+		for (const auto& unit : RecollectManager::instance().workerIdle)
 		{
 			if (unit->getLastCommandFrame() != Broodwar->getFrameCount())
 			{
 				return pair<Unit, Unit>(unit, nullptr);
 			}
 		}
-		for (const auto unit : RecollectManager::instance().workerMineral)
+		for (const auto& unit : RecollectManager::instance().workerMineral)
 		{
 			if (unit.first->isCarryingMinerals())
 			{

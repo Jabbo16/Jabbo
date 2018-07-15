@@ -23,20 +23,20 @@ namespace Jabbo {
 	{
 		mapBweb.draw();
 
-		for (const auto m : ResourceManager::instance().minerals)
+		for (const auto& m : ResourceManager::instance().minerals)
 		{
 			auto text = to_string(m.second);
 			drawTextUnit(m.first->getPosition(), text);
 		}
 
-		for (const auto m : RecollectManager::instance().workerMineral)
+		for (const auto& m : RecollectManager::instance().workerMineral)
 		{
 			string text = "Miner";
 			drawTextUnit(m.first->getPosition(), text);
 			Broodwar->drawLineMap(m.first->getPosition(), m.second->getPosition(), Colors::Red);
 		}
 
-		for (const auto g : RecollectManager::instance().workerGas)
+		for (const auto& g : RecollectManager::instance().workerGas)
 		{
 			if (g.first->getOrder() == Orders::HarvestGas)
 			{
@@ -46,13 +46,13 @@ namespace Jabbo {
 			drawTextUnit(g.first->getPosition(), text);
 		}
 
-		for (const auto m : RecollectManager::instance().workerIdle)
+		for (const auto& m : RecollectManager::instance().workerIdle)
 		{
 			string text = "Idle";
 			drawTextUnit(m->getPosition(), text);
 		}
 
-		for (const auto m : BuildingManager::instance().workerBuild)
+		for (const auto& m : BuildingManager::instance().workerBuild)
 		{
 			string text = "Builder";
 			string textType = m.second.type.c_str();
@@ -61,18 +61,18 @@ namespace Jabbo {
 			drawBoxUnit(m.second.pos, m.second.type, Colors::Yellow);
 		}
 
-		for (const auto m : BuildingManager::instance().workerTask)
+		for (const auto& m : BuildingManager::instance().workerTask)
 		{
 			string text = "Tasked";
 			drawTextUnit(m.second->getPosition(), text);
 		}
 
-		for (const auto enemy : UnitInfoManager::getInstance().getUnitDataOfPlayer(Broodwar->enemy()).getUnits())
+		for (const auto& enemy : UnitInfoManager::getInstance().getUnitDataOfPlayer(Broodwar->enemy()).getUnits())
 		{
 			drawUnit(enemy.first, Colors::Red);
 		}
 
-		for (auto &scouter : ScoutingManager::instance().workerScouters)
+		for (auto& scouter : ScoutingManager::instance().workerScouters)
 		{
 			if (scouter.currentObjective) drawBoxUnit(scouter.currentObjective->tile, Broodwar->enemy()->getRace().getResourceDepot(), Colors::Red);
 			if (scouter.baseToHarass) drawTextUnit(scouter.myUnit->getPosition() + Position(0, 10), toString(scouter.harassStatus));

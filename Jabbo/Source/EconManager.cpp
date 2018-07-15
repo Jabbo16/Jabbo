@@ -40,7 +40,7 @@ namespace Jabbo {
 	{
 		auto myMinerals = Broodwar->self()->minerals();
 		auto myGas = Broodwar->self()->gas();
-		for (auto queue : BuildingManager::instance().buildingsResourcesQueue)
+		for (const auto& queue : BuildingManager::instance().buildingsResourcesQueue)
 		{
 			myMinerals -= queue.mineralPrice();
 			myGas -= queue.gasPrice();
@@ -52,7 +52,7 @@ namespace Jabbo {
 	{
 		auto myMinerals = Broodwar->self()->minerals();
 		auto myGas = Broodwar->self()->gas();
-		for (auto queue : BuildingManager::instance().buildingsResourcesQueue)
+		for (const auto& queue : BuildingManager::instance().buildingsResourcesQueue)
 		{
 			myMinerals -= queue.mineralPrice();
 			myGas -= queue.gasPrice();
