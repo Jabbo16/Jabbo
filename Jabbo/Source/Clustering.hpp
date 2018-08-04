@@ -46,7 +46,8 @@ namespace Jabbo {
 		const double radius_ = pow(UnitTypes::Terran_Siege_Tank_Siege_Mode.groundWeapon().maxRange(), 2);
 		vector<UnitPos> points_{};
 
-		double gaussianKernel(double distanceSquared, double bandwidth) const;
+		double gaussianKernel(const double distanceSquared, const double bandwidth) const;
+		float gaussianKernelF(float, float) const;
 		double euclideanDistanceSquared(double point1X, double point1Y, double point2X, double point2Y) const;
 		vector<pair<double, double>> getNeighbours(Unit unit, double pointX, double pointY);
 	public:

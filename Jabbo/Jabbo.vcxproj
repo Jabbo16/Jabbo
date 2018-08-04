@@ -109,6 +109,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Source\Agents\WorkerScouterAgent.cpp" />
+    <ClCompile Include="Source\ArmyManager.cpp" />
     <ClCompile Include="Source\BaseManager.cpp" />
     <ClCompile Include="Source\BuildingManager.cpp" />
     <ClCompile Include="Source\BuildOrderManager.cpp" />
@@ -129,12 +130,14 @@
     <ClCompile Include="Source\ResourceManager.cpp" />
     <ClCompile Include="Source\RecollectManager.cpp" />
     <ClCompile Include="Source\SimulationManager.cpp" />
+    <ClCompile Include="Source\Squad.cpp" />
     <ClCompile Include="Source\TrainingManager.cpp" />
     <ClCompile Include="Source\UnitManager.cpp" />
     <ClCompile Include="Source\ScoutingManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Agents\WorkerScouterAgent.hpp" />
+    <ClInclude Include="Source\ArmyManager.hpp" />
     <ClInclude Include="Source\BaseManager.hpp" />
     <ClInclude Include="Source\BrainTree\BrainTree.h" />
     <ClInclude Include="Source\BuildingManager.hpp" />
@@ -153,6 +156,7 @@
     <ClInclude Include="Source\ResourceManager.hpp" />
     <ClInclude Include="Source\RecollectManager.hpp" />
     <ClInclude Include="Source\SimulationManager.hpp" />
+    <ClInclude Include="Source\Squad.hpp" />
     <ClInclude Include="Source\TrainingManager.hpp" />
     <ClInclude Include="Source\UnitManager.hpp" />
     <ClInclude Include="Source\ScoutingManager.hpp" />

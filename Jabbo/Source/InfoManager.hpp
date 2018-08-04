@@ -20,6 +20,7 @@ namespace Jabbo {
 		static void onStart();
 		InfoManager();
 		static scutil::UIMap getUnits(Player player);
+		static scutil::UIMap getUnits();
 		static InfoManager & instance();
 	};
 }

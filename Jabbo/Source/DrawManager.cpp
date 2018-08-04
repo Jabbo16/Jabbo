@@ -7,6 +7,7 @@
 #include "EconManager.hpp"
 #include "BWEB/BWEB.h"
 #include "SimulationManager.hpp"
+#include "ArmyManager.hpp"
 using namespace scutil;
 namespace { auto& mapBweb = BWEB::Map::Instance(); }
 namespace Jabbo {
@@ -19,7 +20,7 @@ namespace Jabbo {
 		return instance;
 	}
 
-	void DrawManager::onFrame(SimulationManager s)
+	void DrawManager::onFrame(const SimulationManager s)
 	{
 		mapBweb.draw();
 
@@ -70,6 +71,15 @@ namespace Jabbo {
 		for (const auto& enemy : UnitInfoManager::getInstance().getUnitDataOfPlayer(Broodwar->enemy()).getUnits())
 		{
 			drawUnit(enemy.first, Colors::Red);
+		}
+
+		for (const auto& u : *ArmyManager::instance().getArmy())
+		{
+			Broodwar->drawCircleMap(u.center, Colors::Orange, 300);
+			for (const auto& unit : u.members)
+			{
+				drawUnit(unit.first, Colors::Green);
+			}
 		}
 
 		for (auto& scouter : ScoutingManager::instance().workerScouters)

@@ -32,6 +32,7 @@ namespace Jabbo {
 		list<UnitType> buildingsResourcesQueue{};
 		static TilePosition chooseGeyser();
 		static void onFrame();
+		static Position getCenterFromBuilding(Position leftTop, UnitType type);
 		static BuildingManager & instance();
 		static void onUnitCreate(Unit);
 		static void onUnitComplete(Unit);

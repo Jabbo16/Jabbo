@@ -9,6 +9,7 @@
 #include "TrainingManager.hpp"
 #include "BWEB/BWEB.h"
 #include "SimulationManager.hpp"
+#include "ArmyManager.hpp"
 
 using namespace BWAPI;
 using namespace scutil;
@@ -29,9 +30,6 @@ void JabboModule::onStart()
 	bwem.FindBasesForStartingLocations();
 
 	mapBweb.onStart();
-	std::vector<UnitType> wall = { UnitTypes::Terran_Supply_Depot, UnitTypes::Terran_Barracks, UnitTypes::Terran_Bunker };
-
-	//mapBweb.createWall(wall, mapBweb.getNaturalArea(), mapBweb.getNaturalChoke(), UnitTypes::Zerg_Zergling);
 	mapBweb.findBlocks();
 	UnitInfoManager::getInstance().onStart();
 	Broodwar->enableFlag(Flag::UserInput);
@@ -42,10 +40,6 @@ void JabboModule::onStart()
 	ResourceManager::initBaseResources();
 	RecollectManager::initTree();
 	BuildingManager::initTree();
-	const Position test{ 64,64 };
-	const auto testW = WalkPosition(test);
-	Broodwar->sendText("%d, %d", testW.x, testW.y);
-	// Set the command optimization level so that common commands can be grouped and reduce the bot's APM (Actions Per Minute).
 	Broodwar->setCommandOptimizationLevel(2);
 }
 
@@ -60,7 +54,8 @@ void JabboModule::onEnd(const bool isWinner)
 void JabboModule::onFrame()
 {
 	// Called once every game frame
-	// mapBweb.draw();
+	mapBweb.draw();
+
 	sim.onFrameSim();
 	sim.drawClusters();
 
@@ -74,6 +69,7 @@ void JabboModule::onFrame()
 
 	// activates the onFrame of UnitInfoManager
 	UnitInfoManager::getInstance().onFrame();
+	ArmyManager::instance().onFrame();
 	if (!ScoutingManager::instance().initialScoutingDone && Broodwar->self()->supplyUsed() / 2 >= 9)
 	{
 		ScoutingManager::firstScouting();
@@ -81,7 +77,7 @@ void JabboModule::onFrame()
 	ScoutingManager::onFrame();
 	BuildingManager::onFrame();
 	RecollectManager::onFrame();
-	TrainingManager::onFrame();
+	TrainingManager::instance().onFrame();
 	DrawManager::onFrame(sim);
 	// Prevent spamming by only running our onFrame once every number of latency frames.
 	// Latency frames are the number of frames before commands are processed.
@@ -179,7 +175,7 @@ void JabboModule::onUnitDestroy(const BWAPI::Unit unit)
 			RecollectManager::onUnitDestroy(unit);
 			ScoutingManager::onUnitDestroy(unit);
 		}
-
+		ArmyManager::instance().onUnitDestroy(unit);
 		BuildingManager::onUnitDestroy(unit);
 	}
 }
@@ -207,16 +203,20 @@ void JabboModule::onSaveGame(const std::string gameName)
 void JabboModule::onUnitComplete(const BWAPI::Unit unit)
 {
 	UnitInfoManager::getInstance().onUnitComplete(unit);
+
 	if (unit->getPlayer() == Broodwar->self())
 	{
 		if (unit->getType().isWorker())
 		{
 			RecollectManager::onUnitComplete(unit);
-			return;
 		}
-		if (unit->getType().isBuilding())
+		else if (unit->getType().isBuilding())
 		{
 			BuildingManager::onUnitComplete(unit);
+		}
+		else
+		{
+			ArmyManager::instance().onUnitComplete(InfoManager::getUnits()[unit]);
 		}
 	}
 }

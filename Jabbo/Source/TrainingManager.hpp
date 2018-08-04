@@ -20,7 +20,7 @@ namespace Jabbo {
 		static TrainingManager & instance();
 		void updateScoring();
 		void updateProtossUnitScore(UnitType unit, int count);
-		static void onFrame();
+		void onFrame();
 		static bool hasUnitTypeRequirement(UnitType unitType);
 	};
 }

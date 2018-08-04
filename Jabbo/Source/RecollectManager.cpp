@@ -55,9 +55,13 @@ namespace Jabbo {
 								return Status::Failure;
 							}
 							Unit closestMineral = nullptr;
+							auto workerPerPatch = 2;
+							if (Broodwar->getFrameCount() < 9 && Broodwar->self()->supplyUsed() <= 10) {
+								workerPerPatch = 1;
+							}
 							for (const auto& mineral : ResourceManager::instance().minerals)
 							{
-								if (mineral.second >= 2)
+								if (mineral.second >= workerPerPatch)
 								{
 									continue;
 								}

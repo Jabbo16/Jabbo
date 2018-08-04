@@ -37,6 +37,12 @@ namespace Jabbo {
 	{
 		return exp(-1.0 / 2.0 * distanceSquared / (bandwidth * bandwidth));
 	}
+
+	float Clustering::gaussianKernelF(const float distanceSquared, const float bandwidth) const
+	{
+		return expf(-1.0f / 2.0f * distanceSquared / (bandwidth * bandwidth));
+	}
+
 	double Clustering::euclideanDistanceSquared(const double point1X, const double point1Y, const double point2X, const double point2Y) const
 	{
 		return pow(point1X - point2X, 2.0) + pow(point1Y - point2Y, 2.0);

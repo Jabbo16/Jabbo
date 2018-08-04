@@ -1,6 +1,8 @@
 #include "SimulationManager.hpp"
 #include "Clustering.hpp"
 #include <UnitInfoManager.h>
+#include "ArmyManager.hpp"
+#include "MapManager.hpp"
 using namespace BWAPI;
 using namespace Neolib;
 using namespace scutil;
@@ -9,11 +11,14 @@ namespace Jabbo {
 	{
 		// Friendly Clusters
 		vector<Unit> myUnits{};
-		for (const auto& u : UnitInfoManager::getInstance().getUnitDataOfPlayer(Broodwar->self()).getUnits())
+		for (const auto& it : *ArmyManager::instance().getArmy())
 		{
-			if (u.first->isCompleted() && u.second.type.canAttack() && !u.second.type.isWorker())
+			for (const auto&u : it.members)
 			{
-				myUnits.emplace_back(u.first);
+				if (u.first->exists())
+				{
+					myUnits.emplace_back(u.first);
+				}
 			}
 		}
 		if (myUnits.empty()) return;
@@ -38,17 +43,6 @@ namespace Jabbo {
 		return false;
 	}
 
-	double broodWarDistance(const pair<double, double> pos1, const pair<double, double> pos2)
-	{
-		const auto dx = abs(pos1.first - pos2.first);
-		const auto dy = abs(pos1.second - pos2.second);
-		const auto d = min(dx, dy);
-		const auto D = max(dx, dy);
-		if (d < D / 4) {
-			return D;
-		}
-		return D - D / 16 + d * 3 / 8 - D / 64 + d * 3 / 256;
-	}
 	void SimulationManager::createSimInfos()
 	{
 		for (const auto& ally : friendly_) {
@@ -56,7 +50,7 @@ namespace Jabbo {
 			SimInfo aux{};
 			for (auto enemy : enemies_) {
 				if (enemy.units.empty()) continue;
-				if (broodWarDistance(ally.mode(), enemy.mode()) <= radius_) {
+				if (MapManager::instance().broodWarDistance(ally.mode(), enemy.mode()) <= radius_) {
 					aux.enemies.insert(enemy.units.begin(), enemy.units.end());
 				}
 			}
@@ -174,8 +168,8 @@ namespace Jabbo {
 		if (!noNeedForSim())
 		{
 			createClusters();
-			//createSimInfos();
-			//doSim();
+			createSimInfos();
+			doSim();
 		}
 		const auto end = std::chrono::high_resolution_clock::now();
 		time = long(std::chrono::duration_cast<chrono::milliseconds>(end - start).count());

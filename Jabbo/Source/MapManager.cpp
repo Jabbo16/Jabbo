@@ -7,6 +7,20 @@ namespace Jabbo {
 	MapManager::MapManager()
 		= default;
 
+	vector<Position> MapManager::getAdjacentPos(const Position pos)
+	{
+		vector<Position> positions{};
+		if ((pos + Position(0, 1)).isValid()) positions.emplace_back(pos + Position(0, 1));
+		if ((pos + Position(0, -1)).isValid()) positions.emplace_back(pos + Position(0, -1));
+		if ((pos + Position(1, 0)).isValid()) positions.emplace_back(pos + Position(1, 0));
+		if ((pos + Position(1, -1)).isValid()) positions.emplace_back(pos + Position(1, -1));
+		if ((pos + Position(1, 1)).isValid()) positions.emplace_back(pos + Position(1, 1));
+		if ((pos + Position(-1, 1)).isValid()) positions.emplace_back(pos + Position(-1, 1));
+		if ((pos + Position(-1, 0)).isValid()) positions.emplace_back(pos + Position(-1, 0));
+		if ((pos + Position(-1, -1)).isValid()) positions.emplace_back(pos + Position(-1, -1));
+		return positions;
+	}
+
 	MapManager & MapManager::instance()
 	{
 		static MapManager instance;
@@ -25,6 +39,30 @@ namespace Jabbo {
 			sum = sum + vector;
 		}
 		return sum;
+	}
+
+	double MapManager::broodWarDistance(const pair<double, double> pos1, const pair<double, double> pos2) const
+	{
+		const auto dx = abs(pos1.first - pos2.first);
+		const auto dy = abs(pos1.second - pos2.second);
+		const auto d = min(dx, dy);
+		const auto D = max(dx, dy);
+		if (d < D / 4) {
+			return D;
+		}
+		return D - D / 16 + d * 3 / 8 - D / 64 + d * 3 / 256;
+	}
+
+	double MapManager::broodWarDistance(const Position pos1, const Position pos2) const
+	{
+		const auto dx = abs(pos1.x - pos2.x);
+		const auto dy = abs(pos1.y - pos2.y);
+		const auto d = min(dx, dy);
+		const auto D = max(dx, dy);
+		if (d < D / 4) {
+			return D;
+		}
+		return D - D / 16 + d * 3 / 8 - D / 64 + d * 3 / 256;
 	}
 
 	double MapManager::getGroundDistance(Position start, Position end)

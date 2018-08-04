@@ -21,7 +21,7 @@ namespace Jabbo {
 		instance().myRace = Broodwar->self()->getRace();
 		instance().mainChoke.emplace(mapBweb.getMainChoke());
 		instance().naturalChoke.emplace(mapBweb.getNaturalChoke());
-		instance().mainNaturalBase.emplace(getBaseFromTile(mapBweb.getNatural()));
+		instance().mainNaturalBase.emplace(getBaseFromTile(mapBweb.getNaturalTile()));
 	}
 
 	InfoManager::InfoManager()
@@ -30,6 +30,11 @@ namespace Jabbo {
 	scutil::UIMap InfoManager::getUnits(const Player player)
 	{
 		return scutil::UnitInfoManager::getInstance().getUnitDataOfPlayer(player).getUnits();
+	}
+
+	scutil::UIMap InfoManager::getUnits()
+	{
+		return scutil::UnitInfoManager::getInstance().getUnitDataOfPlayer(Broodwar->self()).getUnits();
 	}
 
 	InfoManager & InfoManager::instance()

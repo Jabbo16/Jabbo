@@ -378,7 +378,7 @@ namespace Jabbo
 							mapBweb.getUsedTiles().emplace(instance().chosenPosition_);
 							instance().workerBuild.emplace(pair<Unit, BuildInfo>(chosenWorker, placeType));
 							instance().buildingsResourcesQueue.emplace_back(instance().chosenType_);
-							chosenWorker->move(Position(instance().chosenPosition_));
+							chosenWorker->move(getCenterFromBuilding(Position(instance().chosenPosition_), instance().chosenType_));
 							return Status::Success;
 						}
 					}
@@ -430,7 +430,7 @@ namespace Jabbo
 							mapBweb.getUsedTiles().emplace(instance().chosenPosition_);
 							instance().workerBuild.emplace(pair<Unit, BuildInfo>(chosenWorker, placeType));
 							instance().buildingsResourcesQueue.emplace_back(instance().chosenType_);
-							chosenWorker->move(Position(instance().chosenPosition_));
+							chosenWorker->move(getCenterFromBuilding(Position(instance().chosenPosition_), instance().chosenType_));
 							return Status::Success;
 						}
 					}
@@ -486,5 +486,10 @@ namespace Jabbo
 			}
 		}
 		instance().buildingTree_.update();
+	}
+	Position BuildingManager::getCenterFromBuilding(const Position leftTop, UnitType type)
+	{
+		const auto rightBottom = leftTop + Position(type.tileWidth() * 32, type.tileHeight() * 32);
+		return (leftTop + rightBottom) / 2;;
 	}
 }
