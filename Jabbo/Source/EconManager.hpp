@@ -8,7 +8,7 @@ namespace Jabbo {
 	public:
 		EconManager();
 		static bool iHaveMoney(const UnitType& unit);
-		bool iHaveMoney(const UnitType & unit, TilePosition start, TilePosition end) const;
+		bool iHaveMoney(const UnitType & unit, TilePosition start, TilePosition end, int amount = 1) const;
 		static double mineralGainPerFrame();
 		static int getMineralsWhenReaching(Unit u, Position start, Position end);
 		static int getMineralsWhenReaching(Position start, Position end);

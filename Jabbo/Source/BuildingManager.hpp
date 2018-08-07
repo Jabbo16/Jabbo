@@ -19,7 +19,7 @@ namespace Jabbo {
 		class ChooseType : public BT::Leaf {};
 		TilePosition chosenPosition_;
 		map<Unit, BOItem > itemsInProgress_{};
-		UnitType chosenType_ = UnitTypes::Unknown;
+		pair<UnitType, int> chosenType_{ UnitTypes::Unknown, 1 };
 		bool isFromBO_ = false;
 		map<Unit, BuildInfo> unitTransforming_{};
 		BT::BehaviorTree buildingTree_{};
@@ -27,9 +27,9 @@ namespace Jabbo {
 	public:
 		BuildingManager();
 
-		map < Unit, BuildInfo> workerBuild{};
+		map <Unit, BuildInfo> workerBuild{};
 		map <Unit, Unit> workerTask{};
-		list<UnitType> buildingsResourcesQueue{};
+		vector<UnitType> buildingsResourcesQueue{};
 		static TilePosition chooseGeyser();
 		static void onFrame();
 		static Position getCenterFromBuilding(Position leftTop, UnitType type);

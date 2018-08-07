@@ -134,6 +134,7 @@
     <ClCompile Include="Source\TrainingManager.cpp" />
     <ClCompile Include="Source\UnitManager.cpp" />
     <ClCompile Include="Source\ScoutingManager.cpp" />
+    <ClCompile Include="Source\WallManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Agents\WorkerScouterAgent.hpp" />
@@ -160,6 +161,7 @@
     <ClInclude Include="Source\TrainingManager.hpp" />
     <ClInclude Include="Source\UnitManager.hpp" />
     <ClInclude Include="Source\ScoutingManager.hpp" />
+    <ClInclude Include="Source\WallManager.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

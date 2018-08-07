@@ -2,6 +2,7 @@
 #include "BuildingManager.hpp"
 #include "UnitInfoManager.h"
 #include "MapManager.hpp"
+#include "TrainingManager.hpp"
 using namespace BWAPI;
 using namespace scutil;
 using namespace Filter;
@@ -48,7 +49,7 @@ namespace Jabbo {
 		return myMinerals >= unit.mineralPrice() && myGas >= unit.gasPrice();
 	}
 
-	bool EconManager::iHaveMoney(const UnitType& unit, const TilePosition start, const TilePosition end) const
+	bool EconManager::iHaveMoney(const UnitType& unit, const TilePosition start, const TilePosition end, const int amount) const
 	{
 		auto myMinerals = Broodwar->self()->minerals();
 		auto myGas = Broodwar->self()->gas();
@@ -57,7 +58,7 @@ namespace Jabbo {
 			myMinerals -= queue.mineralPrice();
 			myGas -= queue.gasPrice();
 		}
-		return myMinerals + getMineralsWhenReaching(Position(start), Position(end)) >= unit.mineralPrice() && myGas >= unit.gasPrice();
+		return myMinerals + getMineralsWhenReaching(Position(start), Position(end)) >= unit.mineralPrice() * amount && myGas >= unit.gasPrice() * amount;
 	}
 
 	EconManager & EconManager::instance()

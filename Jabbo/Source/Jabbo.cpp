@@ -10,6 +10,7 @@
 #include "BWEB/BWEB.h"
 #include "SimulationManager.hpp"
 #include "ArmyManager.hpp"
+#include "WallManager.hpp"
 
 using namespace BWAPI;
 using namespace scutil;
@@ -30,6 +31,8 @@ void JabboModule::onStart()
 	bwem.FindBasesForStartingLocations();
 
 	mapBweb.onStart();
+	BuildOrderManager::instance().onStart();
+	WallManager::instance().onStart();
 	mapBweb.findBlocks();
 	UnitInfoManager::getInstance().onStart();
 	Broodwar->enableFlag(Flag::UserInput);

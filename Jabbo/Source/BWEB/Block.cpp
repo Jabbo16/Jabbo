@@ -52,14 +52,14 @@ namespace BWEB
 						distBest = dist;
 
 						h = (blockCenter.x < mainPosition.x);
-						v = (blockCenter.y < mainPosition.y);							
+						v = (blockCenter.y < mainPosition.y);
 					}
 				}
 			}
 		}
 
 		// HACK: Fix for plasma, if we don't have a valid one, rotate and try a less efficient vertical one
-		if (!tileBest.isValid()){
+		if (!tileBest.isValid()) {
 			for (auto x = mainTile.x - 16; x <= mainTile.x + 20; x++) {
 				for (auto y = mainTile.y - 16; y <= mainTile.y + 20; y++) {
 					TilePosition tile(x, y);
@@ -85,9 +85,9 @@ namespace BWEB
 				blocks.push_back(newBlock);
 			}
 		}
-		
+
 		else if (tileBest.isValid())
-			insertStartBlock(race, tileBest, h, v);		
+			insertStartBlock(race, tileBest, h, v);
 	}
 
 	void Map::findBlocks()
@@ -133,7 +133,6 @@ namespace BWEB
 		// Iterate every tile
 		for (int i = 20; i > 0; i--) {
 			for (int j = 20; j > 0; j--) {
-
 				if (find(heights.begin(), heights.end(), j) == heights.end() || find(widths.begin(), widths.end(), i) == widths.end())
 					continue;
 
@@ -169,12 +168,12 @@ namespace BWEB
 			return here + TilePosition(x, y);
 		};
 
-		if (race == Races::Protoss)	{
-			if (height == 2) {				
+		if (race == Races::Protoss) {
+			if (height == 2) {
 				// Pylon and medium
 				if (width == 5) {
-					newBlock.insertSmall(offset(0,0));
-					newBlock.insertMedium(offset(2,0));
+					newBlock.insertSmall(offset(0, 0));
+					newBlock.insertMedium(offset(2, 0));
 				}
 				else return;
 			}

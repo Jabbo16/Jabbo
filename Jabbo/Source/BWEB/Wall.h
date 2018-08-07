@@ -2,7 +2,7 @@
 #include "BWEB.h"
 
 namespace BWEB
-{	
+{
 	using namespace BWAPI;
 	using namespace std;
 
@@ -15,7 +15,7 @@ namespace BWEB
 		const BWEM::ChokePoint * choke;
 
 		vector<UnitType> rawBuildings, rawDefenses;
-		
+
 	public:
 		Wall(const BWEM::Area *, const BWEM::ChokePoint *, vector<UnitType>, vector<UnitType>);
 		void insertDefense(TilePosition here) { defenses.insert(here); }
@@ -25,7 +25,7 @@ namespace BWEB
 
 		const BWEM::ChokePoint * getChokePoint() const { return choke; }
 		const BWEM::Area * getArea() const { return area; }
-		
+
 		// Returns the defense locations associated with this Wall
 		set<TilePosition> getDefenses() const { return defenses; }
 
@@ -49,5 +49,5 @@ namespace BWEB
 
 		// Returns the raw vector of the defenses passed in
 		vector<UnitType>& getRawDefenses() { return rawDefenses; }
-	};	
+	};
 }

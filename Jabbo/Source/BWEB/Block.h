@@ -12,7 +12,6 @@ namespace BWEB
 		TilePosition t;
 		set <TilePosition> small, medium, large;
 
-
 	public:
 		Block() : w(0), h(0) {};
 		Block(int, int, TilePosition);

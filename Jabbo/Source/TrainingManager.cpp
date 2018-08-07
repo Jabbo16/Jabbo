@@ -160,6 +160,33 @@ namespace Jabbo {
 	{
 		//Workers
 		auto myUnitData = UnitInfoManager::getInstance().getUnitDataOfPlayer(Broodwar->self());
+		if (!BuildOrderManager::instance().myBo.itemsBO.empty())
+		{
+			auto next = BuildOrderManager::instance().myBo.itemsBO[0];
+			if (!std::holds_alternative<UnitType>(next.type))
+			{
+				return;
+			}
+			UnitType aux = std::get<UnitType>(next.type);
+			if (aux.isBuilding() && Broodwar->self()->supplyUsed() / 2 >= next.supply)
+			{
+				return;
+			}
+			if (EconManager::iHaveMoney(aux) && Broodwar->self()->supplyUsed() / 2 >= next.supply)
+			{
+				for (auto &b : myUnitData.getUnits())
+				{
+					if (b.first->canTrain(aux) && !b.first->isTraining())
+					{
+						b.first->train(aux);
+						const auto frame = aux.buildTime() + Broodwar->getFrameCount();
+						instance().unitQueue.emplace_back(UnitItemQueue{ b.first, aux, frame, true });
+						BuildOrderManager::instance().myBo.itemsBO.erase(BuildOrderManager::instance().myBo.itemsBO.begin());
+						return;
+					}
+				}
+			}
+		}
 		if (EconManager::iHaveMoney(InfoManager::instance().myRace.getWorker()) && unsigned int(Broodwar->self()->allUnitCount(InfoManager::instance().myRace.getWorker())) < unsigned int(ResourceManager::instance().minerals.size() * 2 + ResourceManager::instance().gas.size() + 1))
 		{
 			for (const auto& u : myUnitData.getUnits())
@@ -178,30 +205,6 @@ namespace Jabbo {
 					case Races::Protoss:
 						u.first->train(UnitTypes::Protoss_Probe);
 					default:;
-					}
-				}
-			}
-		}
-
-		if (!BuildOrderManager::instance().myBo.itemsBO.empty())
-		{
-			auto next = BuildOrderManager::instance().myBo.itemsBO[0];
-			if (!std::holds_alternative<UnitType>(next.type))
-			{
-				return;
-			}
-			UnitType aux = std::get<UnitType>(next.type);
-			if (!aux.isBuilding() && (EconManager::iHaveMoney(aux) && Broodwar->self()->supplyUsed() / 2 >= next.supply))
-			{
-				for (auto &b : myUnitData.getUnits())
-				{
-					if (b.first->canTrain(aux) && !b.first->isTraining())
-					{
-						b.first->train(aux);
-						const auto frame = aux.buildTime() + Broodwar->getFrameCount();
-						instance().unitQueue.emplace_back(UnitItemQueue{ b.first, aux, frame, true });
-						BuildOrderManager::instance().myBo.itemsBO.erase(BuildOrderManager::instance().myBo.itemsBO.begin());
-						return;
 					}
 				}
 			}

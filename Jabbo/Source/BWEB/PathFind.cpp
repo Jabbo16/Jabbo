@@ -87,11 +87,9 @@ namespace BWEB
 		}
 	}
 
-	
-
-	Path::Path() 
+	Path::Path()
 	{
-		tiles ={};
+		tiles = {};
 		dist = 0.0;
 	}
 }

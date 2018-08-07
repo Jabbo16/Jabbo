@@ -89,7 +89,6 @@ namespace BWEB
 		auto distBest = DBL_MAX;
 		for (auto &area : mapBWEM.Areas()) {
 			for (auto &base : area.Bases()) {
-
 				// Must have gas, be accesible and at least 5 mineral patches
 				if (base.Starting()
 					|| base.Geysers().empty()
@@ -200,7 +199,7 @@ namespace BWEB
 			Broodwar->drawTextMap((Position)choke->Center() + Position(0, 16), "%.2f", dist);
 		}
 
-		// Draw Blocks 
+		// Draw Blocks
 		for (auto &block : blocks) {
 			for (auto &tile : block.SmallTiles())
 				Broodwar->drawBoxMap(Position(tile), Position(tile) + Position(65, 65), Broodwar->self()->getColor());
@@ -320,7 +319,6 @@ namespace BWEB
 		// Note: Must check neutrals due to the terrain below them technically being buildable
 		const auto creepCheck = type.requiresCreep() ? true : false;
 		for (auto x = location.x; x < location.x + type.tileWidth(); x++) {
-
 			if (creepCheck) {
 				TilePosition tile(x, location.y + 2);
 				if (!Broodwar->isBuildable(tile))
@@ -328,7 +326,6 @@ namespace BWEB
 			}
 
 			for (auto y = location.y; y < location.y + type.tileHeight(); y++) {
-
 				TilePosition tile(x, y);
 				if (!tile.isValid()
 					|| !Broodwar->isBuildable(tile)

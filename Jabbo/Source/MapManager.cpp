@@ -67,17 +67,17 @@ namespace Jabbo {
 
 	double MapManager::getGroundDistance(Position start, Position end)
 	{
+		/*int* dist = 0;
+		const auto& path = bwem.GetPath(start, end, dist);
+		return *dist == -1 ? DBL_MAX : static_cast<double>(*dist);*/
 		auto dist = 0.0;
-		if (!start.isValid() || !end.isValid() || !bwem.GetArea(WalkPosition(start)) || !bwem.GetArea(WalkPosition(end)))
-			return DBL_MAX;
-
+		if (!start.isValid() || !end.isValid() || !bwem.GetArea(WalkPosition(start)) || !bwem.GetArea(WalkPosition(end))) return DBL_MAX;
 		for (const auto& cpp : bwem.GetPath(start, end))
 		{
 			const auto center = Position{ cpp->Center() };
 			dist += start.getDistance(center);
 			start = center;
 		}
-
 		return dist += start.getDistance(end);
 	}
 
